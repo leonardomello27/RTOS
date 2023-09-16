@@ -12,7 +12,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 2000,
         "APPMODE" : 
         [
           
@@ -20,7 +20,7 @@
             "VALUE" : "stdAppmode"
           }
         ],
-        "CYCLETIME" : 100
+        "CYCLETIME" : 2000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "periodicAlarm1"
@@ -34,7 +34,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 2000,
         "APPMODE" : 
         [
           
@@ -42,7 +42,7 @@
             "VALUE" : "stdAppmode"
           }
         ],
-        "CYCLETIME" : 90
+        "CYCLETIME" : 2000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "periodicAlarm2"
@@ -96,18 +96,7 @@
       "ACTIVATION" : 1,
       "AUTOSTART" : "false",
       "KIND" : "Task",
-      "NAME" : "Receive",
-      "NONPREEMPTABLE" : "false",
-      "PRIORITY" : 2,
-      "SCHEDULE" : "FULL",
-      "STACKSIZE" : 128,
-      "USEINTERNALRESOURCE" : "false"
-    },    
-    {
-      "ACTIVATION" : 1,
-      "AUTOSTART" : "false",
-      "KIND" : "Task",
-      "NAME" : "print",
+      "NAME" : "ACC_input_send",
       "NONPREEMPTABLE" : "false",
       "PRIORITY" : 2,
       "SCHEDULE" : "FULL",
@@ -129,9 +118,20 @@
       "ACTIVATION" : 1,
       "AUTOSTART" : "false",
       "KIND" : "Task",
-      "NAME" : "ACC_input_send",
+      "NAME" : "Receive",
       "NONPREEMPTABLE" : "false",
       "PRIORITY" : 4,
+      "SCHEDULE" : "FULL",
+      "STACKSIZE" : 128,
+      "USEINTERNALRESOURCE" : "false"
+    },    
+    {
+      "ACTIVATION" : 1,
+      "AUTOSTART" : "false",
+      "KIND" : "Task",
+      "NAME" : "print",
+      "NONPREEMPTABLE" : "false",
+      "PRIORITY" : 5,
       "SCHEDULE" : "FULL",
       "STACKSIZE" : 128,
       "USEINTERNALRESOURCE" : "false"

@@ -30,13 +30,13 @@ unsigned char 		mDLC  = 0;
 //Id CAN Receive
 #define ID_ACC_speed_set		0x18F00503 //Data dictionary
 #define ACC_input_ID			0x0CF00400 //Data dictionary
-#define ID_Ego_speed			0x0C42A1B4 //Data dictionary
+#define ID_Ego_speed			0x0C43A1B4 //Data dictionary
 #define ID_Relative_distance	0x0A1B8008 //Data dictionary 
 #define ID_Relative_speed		0x0C1B3049  //Data dictionary
 
 
 //Id mensagens CAN sand
-#define ID_ACC_Acceleration		0x18EFE210 //Data dictionary
+#define ID_ACC_Acceleration		0x0D4001B0 //Data dictionary
 #define ACC_enabled_ID			0x18FEF100 //Data dictionar
 
 
@@ -51,7 +51,7 @@ const float Ego_acceleration_max  = 1.47;
 
 
 //Variables received by CAN network
-bool  ACC_input         = 0; 
+bool  ACC_input         = 1; 
 float Ego_speed         = 0;
 float Relative_distance = 0;
 float Relative_speed    = 0;
@@ -154,8 +154,9 @@ TASK(Can_Receive_Simu_arduino)
 			ReleaseResource(res1);
 
 		}
+		ReleaseResource(res1);
 	}
-	ReleaseResource(res1);
+	
 	TerminateTask();
 }
 
@@ -214,7 +215,7 @@ TASK(Calculate_ACC_Acceleration)
 	
 		}
 
-		sprintf(Acceleration_send , "%04X", (int)((Acceleration - 5)/0.01));
+		sprintf(Acceleration_send , "%04X", (int)(((Acceleration)/0.01)+5));
 		ACC_Acceleration_Data[1] = strtol(Acceleration_send , NULL, 16) >> 8;
 		ACC_Acceleration_Data[2] = strtol(Acceleration_send  + 2, NULL, 16);
 	
@@ -235,7 +236,7 @@ TASK(print)
 	
 	Serial.print("Aceleração: ");
 	Acceleration_aux  = (ACC_Acceleration_Data[1] << 8) | ACC_Acceleration_Data[2];
-	Serial.print((Acceleration*0.01) + 5);
+	Serial.print((Acceleration_aux-5)*0.01);
 	Serial.println(";");
 	
 	

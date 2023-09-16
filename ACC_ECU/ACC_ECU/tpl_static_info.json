@@ -12,7 +12,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 5000,
         "APPMODE" : 
         [
           
@@ -20,7 +20,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 40
+        "CYCLETIME" : 5000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCalculate_ACC_Acceleration"
@@ -34,7 +34,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 2000,
         "APPMODE" : 
         [
           
@@ -42,7 +42,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 25
+        "CYCLETIME" : 2000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_Receive"
@@ -56,7 +56,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 2000,
         "APPMODE" : 
         [
           
@@ -64,7 +64,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 25
+        "CYCLETIME" : 2000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_Receive_Simu_arduino"
@@ -78,7 +78,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 5500,
         "APPMODE" : 
         [
           
@@ -86,7 +86,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 30
+        "CYCLETIME" : 5500
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_print"
@@ -100,7 +100,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 3000,
+        "ALARMTIME" : 4000,
         "APPMODE" : 
         [
           
@@ -108,7 +108,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 100
+        "CYCLETIME" : 4000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeLogic_block"
@@ -150,20 +150,9 @@
       "KIND" : "Task",
       "NAME" : "Can_Receive",
       "NONPREEMPTABLE" : "false",
-      "PRIORITY" : 2,
-      "SCHEDULE" : "FULL",
-      "STACKSIZE" : 128,
-      "USEINTERNALRESOURCE" : "false"
-    },    
-    {
-      "ACTIVATION" : 1,
-      "AUTOSTART" : "false",
-      "KIND" : "Task",
-      "NAME" : "Calculate_ACC_Acceleration",
-      "NONPREEMPTABLE" : "false",
       "PRIORITY" : 3,
       "SCHEDULE" : "FULL",
-      "STACKSIZE" : 256,
+      "STACKSIZE" : 128,
       "USEINTERNALRESOURCE" : "false"
     },    
     {
@@ -181,9 +170,20 @@
       "ACTIVATION" : 1,
       "AUTOSTART" : "false",
       "KIND" : "Task",
-      "NAME" : "print",
+      "NAME" : "Calculate_ACC_Acceleration",
       "NONPREEMPTABLE" : "false",
       "PRIORITY" : 5,
+      "SCHEDULE" : "FULL",
+      "STACKSIZE" : 256,
+      "USEINTERNALRESOURCE" : "false"
+    },    
+    {
+      "ACTIVATION" : 1,
+      "AUTOSTART" : "false",
+      "KIND" : "Task",
+      "NAME" : "print",
+      "NONPREEMPTABLE" : "false",
+      "PRIORITY" : 6,
       "SCHEDULE" : "FULL",
       "STACKSIZE" : 128,
       "USEINTERNALRESOURCE" : "false"

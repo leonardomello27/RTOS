@@ -19,7 +19,7 @@ unsigned char 		mDLC  = 0;
 
 #define ACC_speed_set_ID	0x18F00503 //ACC_speed_set
 #define ACC_input_ID		0x0CF00400 //Acc_input
-#define Ego_speed_ID 		0x0C42A1B4 //Ego_speed
+#define Ego_speed_ID 		0x0C43A1B4 //Ego_speed
 #define ACC_enabled_ID 		0x18FEF100 //Acc_enabled
 
 
