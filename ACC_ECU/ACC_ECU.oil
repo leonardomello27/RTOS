@@ -48,27 +48,7 @@ CPU ECM {
 		STACKSIZE = 128;
 	};
 	
-	
-	ALARM alarmeCan_Receive_Simu_arduino {
-		COUNTER = SystemCounter;
-		ACTION = ACTIVATETASK { 
-			TASK = Can_Receive_Simu_arduino;
-		};  
-		AUTOSTART = TRUE {
-			ALARMTIME = 2000;
-			CYCLETIME = 2000;
-			APPMODE = stdAppMode;
-		};
-	};
-	
-	TASK Can_Receive_Simu_arduino {
-		PRIORITY = 5;
-		AUTOSTART = FALSE;
-		ACTIVATION = 1;
-		SCHEDULE = FULL;
-		STACKSIZE = 128;
-	};
-	
+
 	
 	ALARM alarmeLogic_block {
 		COUNTER = SystemCounter;

@@ -68,9 +68,9 @@ TASK(ACC_speed_set_send)
 
 	M = CAN1.sendMsgBuf(ACC_speed_set_ID, EXT_FRAME, mEEC1_DLC, ACC_speed_set_Data);
 	
-	if (M == CAN_OK){
-		Serial.println("can_send ACC_speed_set OK"); 
-	}
+//	if (M == CAN_OK){
+//		Serial.println("can_send ACC_speed_set OK"); 
+//	}
 	TerminateTask();
 }
 
