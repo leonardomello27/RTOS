@@ -51,7 +51,7 @@ const float Ego_acceleration_max  = 1.47;
 
 
 //Variables received by CAN network
-bool  ACC_input         = 0; 
+bool  ACC_input         = 1; 
 float Ego_speed         = 0;
 float Relative_distance = 0;
 float Relative_speed    = 0;

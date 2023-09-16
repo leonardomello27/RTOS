@@ -210,11 +210,9 @@ TASK(Calculate_ACC_Acceleration)
 			
 		}else{
 			Acceleration = (Control_x < Control_v) ? Control_x : Control_v;
-			
-		Acceleration = (Acceleration < Ego_acceleration_min) ? Ego_acceleration_min : (Acceleration > Ego_acceleration_max) ? Ego_acceleration_max : Acceleration;
 	
 		}
-
+		Acceleration = (Acceleration < Ego_acceleration_min) ? Ego_acceleration_min : (Acceleration > Ego_acceleration_max) ? Ego_acceleration_max : Acceleration;
 		sprintf(Acceleration_send , "%04X", (int)(((Acceleration)/0.01)+5));
 		ACC_Acceleration_Data[1] = strtol(Acceleration_send , NULL, 16) >> 8;
 		ACC_Acceleration_Data[2] = strtol(Acceleration_send  + 2, NULL, 16);
