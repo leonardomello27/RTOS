@@ -105,11 +105,16 @@ TASK(Can_Receive)
 		CAN1.readMsgBuf(&mID, &mDLC, mDATA);
 		
 		if((mID & EV_RV_RD_data_ID) == EV_RV_RD_data_ID) {
+			//Extracting Ego speed
+			Serial.println("RECEBEU MSG SIMUARDUINO");
 			Ego_speed = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
-			Ego_speed = ACC_speed_set / (256);
+			Ego_speed = Ego_speed / (256);
 			
+			
+			//Extracting Relative Distance
 			Relative_distance = (mDATA[3] << 8) | mDATA[4]; //Check data dictionary
 			
+			////Extracting Relative Speed
 			Relative_speed = (mDATA[5] << 8) | mDATA[6]; //Check data dictionary
 			Relative_speed = Relative_speed / (256);
 			
@@ -132,8 +137,9 @@ TASK(Can_Receive)
 			ReleaseResource(res1);
 			TerminateTask();
 		}
+			ReleaseResource(res1);
 	}
-	ReleaseResource(res1);
+
 	TerminateTask();
 }
 
