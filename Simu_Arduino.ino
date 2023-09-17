@@ -27,6 +27,9 @@ float interval  	= 0.001;
 int   counter   	= 0;
 float Relative_distance_pres = 10;
 float Relative_distance_past = 5;
+unsigned long timePrevious = 0;
+unsigned long timeCurrent = 0;
+unsigned long timeVariation = 0;
 
 char  Relative_distance_pres_send[4];
 char  Ego_Speed_send[4];
@@ -65,6 +68,7 @@ void setup()
 
 void loop()
 {
+  timePrevious = timeCurrent;
 	if(!digitalRead(2)){
 		CAN1.readMsgBuf(&mID, &mDLC, mDATA);
 		if((mID & Ego_Acceleration_ID) == Ego_Acceleration_ID){
@@ -96,9 +100,11 @@ void loop()
 	}else{
 		Relative_distance_pres = Relative_distance_pres;
 	}
-		
+
 	counter++;
-	
+	timeCurrent = millis();
+  timeVariation = timeCurrent-timePrevious;
+  
 	if (counter % 20000 == 0){
 		
 		Serial.print("Rebendo ---- Ego_ace: ");
@@ -115,6 +121,19 @@ void loop()
 
 		Serial.print("Relative Speed: ");
 		Serial.print(Relative_velo);
+		Serial.println("; ");
+
+    Serial.print("Time Current for this Cycle: ");
+		Serial.print(timeCurrent);
+		Serial.println("; ");
+
+    
+    Serial.print("Time Previous for this Cycle: ");
+		Serial.print(timePrevious);
+		Serial.println("; ");
+
+    Serial.print("Time MILIS for this Cycle: ");
+		Serial.print(millis());
 		Serial.println("; ");
 		
 		//CAN Message Sender
@@ -133,4 +152,5 @@ void loop()
 	
 		ret = CAN1.sendMsgBuf(EV_RV_RD_data_ID,EXT_FRAME,DLC,Send_data);
 	}	
+
 }
