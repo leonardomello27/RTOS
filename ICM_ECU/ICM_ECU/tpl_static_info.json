@@ -29,6 +29,28 @@
       "ACTION" : "ACTIVATETASK",
       "ACTION_S" : 
       {
+        "TASK" : "Receive"
+      },
+      "AUTOSTART" : "true",
+      "AUTOSTART_S" : 
+      {
+        "ALARMTIME" : 20,
+        "APPMODE" : 
+        [
+          
+          {
+            "VALUE" : "stdAppmode"
+          }
+        ],
+        "CYCLETIME" : 20
+      },
+      "COUNTER" : "SystemCounter",
+      "NAME" : "periodicAlarm4"
+    },    
+    {
+      "ACTION" : "ACTIVATETASK",
+      "ACTION_S" : 
+      {
         "TASK" : "print"
       },
       "AUTOSTART" : "true",
@@ -40,15 +62,12 @@
           
           {
             "VALUE" : "stdAppmode"
-          },          
-          {
-            "VALUE" : "stdAppmode"
           }
         ],
         "CYCLETIME" : 25
       },
       "COUNTER" : "SystemCounter",
-      "NAME" : "periodicAlarm4"
+      "NAME" : "periodicAlarm5"
     }
   ],
   "event" : [],

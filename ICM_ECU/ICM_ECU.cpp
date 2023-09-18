@@ -90,6 +90,8 @@ TASK(ACC_speed_set_send)
 
 TASK(Receive)
 {
+	
+	Serial.println("ENTROU NA TASK");
 	if(!digitalRead(2)){
 		CAN1.readMsgBuf(&mID, &mDLC, mDATA);
 		if((mID & EV_RV_RD_data_ID) == EV_RV_RD_data_ID){
