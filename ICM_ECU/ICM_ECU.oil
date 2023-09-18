@@ -33,13 +33,8 @@ CPU test {
       TASK = ACC_speed_set_send;
     };
     AUTOSTART = TRUE {
-<<<<<<< Updated upstream
-      ALARMTIME = 2000; 
-      CYCLETIME = 2000; 
-=======
       ALARMTIME = 25; 
       CYCLETIME = 1000; 
->>>>>>> Stashed changes
       APPMODE 	= stdAppmode;
     };
   };

@@ -106,14 +106,11 @@ TASK(Can_Receive)
 		
 		if((mID & EV_RV_RD_data_ID) == EV_RV_RD_data_ID) {
 			Ego_speed = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
-			Ego_speed = ACC_speed_set / (256);
+			Ego_speed = Ego_speed / (256);
 			
 			Relative_distance = (mDATA[3] << 8) | mDATA[4]; //Check data dictionary
 			
-<<<<<<< Updated upstream
-=======
 			//Extracting Relative Speed
->>>>>>> Stashed changes
 			Relative_speed = (mDATA[5] << 8) | mDATA[6]; //Check data dictionary
 			Relative_speed = Relative_speed / (256);
 			
@@ -137,20 +134,8 @@ TASK(Can_Receive)
 			TerminateTask();
 		}
 		
-<<<<<<< Updated upstream
-		if((mID & ACC_speed_set_ID) == ACC_speed_set_ID) {
-			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
-			ACC_speed_set = ACC_speed_set / (256);
-			
-			ReleaseResource(res1);
-			TerminateTask();
-		}
-	}
-	ReleaseResource(res1);
-=======
 		ReleaseResource(res1);
 	}
->>>>>>> Stashed changes
 	TerminateTask();
 }
 
@@ -216,8 +201,11 @@ TASK(Calculate_ACC_Acceleration)
 		ReleaseResource(res1);
 	
 		M1 = CAN1.sendMsgBuf(ID_ACC_Acceleration, EXT_FRAME, DLC_ACC, ACC_Acceleration_Data);
-		
-		Serial.println("ENVIOU ACELERAÇÃO");
+		if (M1 == CAN_OK){
+		Serial.println("ENVIOU ACELERAÇÃO"); 
+		M1=0;
+	}
+		//Serial.println("ENVIOU ACELERAÇÃO");
 	}	
 	TerminateTask();
 }

@@ -20,11 +20,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-<<<<<<< Updated upstream
-        "CYCLETIME" : 5000
-=======
         "CYCLETIME" : 30
->>>>>>> Stashed changes
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCalculate_ACC_Acceleration"
@@ -38,7 +34,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 2000,
+        "ALARMTIME" : 1000,
         "APPMODE" : 
         [
           
@@ -46,11 +42,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-<<<<<<< Updated upstream
-        "CYCLETIME" : 2000
-=======
         "CYCLETIME" : 10
->>>>>>> Stashed changes
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_Receive"
@@ -64,7 +56,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 5500,
+        "ALARMTIME" : 4000,
         "APPMODE" : 
         [
           
@@ -72,11 +64,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-<<<<<<< Updated upstream
-        "CYCLETIME" : 5500
-=======
         "CYCLETIME" : 40
->>>>>>> Stashed changes
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_print"

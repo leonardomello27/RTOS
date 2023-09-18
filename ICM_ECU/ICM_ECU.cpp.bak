@@ -19,10 +19,18 @@ unsigned char 		mDLC  = 0;
 byte M   = 0;
 byte M1 = 0;
 
+/*
+0x0C1B3049
+0x0D4001B0
+0x18FEF100
+0x18F00503
+*/
+
+
 
 //Id mensagens CAN sand
 #define ACC_speed_set_ID	0x18F00503 //ACC_speed_set
-//#define ACC_input_ID		0x0CF00400 //Acc_input
+//#define ACC_input_ID		0x0D4001B0 //Acc_input
 
 
 //Variables received
@@ -74,6 +82,7 @@ TASK(ACC_speed_set_send)
 
 	M = CAN1.sendMsgBuf(ACC_speed_set_ID, EXT_FRAME, mEEC1_DLC, ACC_speed_set_Data);
 	
+	Serial.println("ENVIOU speed set");
 
 	TerminateTask();
 }
@@ -100,17 +109,21 @@ TASK(print)
 {
 	GetResource(res1);
 	
-	Serial.print("ACC_input: ");
+	Serial.print("Recebendo ---- Ego_speed: ");
+	Serial.print(Ego_speed);
+	Serial.print("; ");
+	
+	Serial.print("ACC_enabled: ");
+	Serial.print(ACC_enabled);
+	Serial.println("; ");
+	
+	Serial.print("Enviando ---- ACC_input: ");
 	Serial.print(ACC_speed_set_Data[3]);
 	Serial.print("; ");
 	
 	Serial.print("Set_speed: ");
 	Serial.print((((ACC_speed_set_Data[1] << 8) | ACC_speed_set_Data[2]) / 256));
 	Serial.println(";");
-	
-	Serial.print("Ego_speed: ");
-	Serial.print(Ego_speed);
-	Serial.print("; ");
 
 	ReleaseResource(res1);
 	TerminateTask();

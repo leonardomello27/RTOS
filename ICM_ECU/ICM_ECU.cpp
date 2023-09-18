@@ -82,7 +82,7 @@ TASK(ACC_speed_set_send)
 
 	M = CAN1.sendMsgBuf(ACC_speed_set_ID, EXT_FRAME, mEEC1_DLC, ACC_speed_set_Data);
 	
-	Serial.println("ENVIOU ACELERAÇÃO");
+	Serial.println("ENVIOU ICM");
 
 	TerminateTask();
 }

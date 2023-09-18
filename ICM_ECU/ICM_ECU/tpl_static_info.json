@@ -12,11 +12,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-<<<<<<< Updated upstream
-        "ALARMTIME" : 2000,
-=======
         "ALARMTIME" : 25,
->>>>>>> Stashed changes
         "APPMODE" : 
         [
           
@@ -24,7 +20,7 @@
             "VALUE" : "stdAppmode"
           }
         ],
-        "CYCLETIME" : 2000
+        "CYCLETIME" : 1000
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "periodicAlarm1"
