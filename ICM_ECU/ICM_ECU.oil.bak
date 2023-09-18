@@ -68,7 +68,7 @@ CPU test {
     STACKSIZE 	= 128;
   };
   
-    ALARM periodicAlarm4 {
+    ALARM periodicAlarm5 {
     COUNTER= SystemCounter;
     ACTION = ACTIVATETASK {
     TASK = print;
