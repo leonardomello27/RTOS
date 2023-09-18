@@ -58,6 +58,8 @@ MCP_CAN CAN1(10);
 void setup()
 {
 	Set_speed = 80/3.6; // setspeed
+	if (Set_speed < 0) Set_speed = 0;
+	else if (Set_speed > 120) Set_speed = 120;
 	// Initialize the serial interface: baudrate = 115200
 	Serial.begin(115200);
 	
