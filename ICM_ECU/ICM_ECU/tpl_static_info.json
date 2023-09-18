@@ -12,7 +12,11 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
+<<<<<<< Updated upstream
         "ALARMTIME" : 2000,
+=======
+        "ALARMTIME" : 25,
+>>>>>>> Stashed changes
         "APPMODE" : 
         [
           
@@ -29,34 +33,12 @@
       "ACTION" : "ACTIVATETASK",
       "ACTION_S" : 
       {
-        "TASK" : "ACC_input_send"
-      },
-      "AUTOSTART" : "true",
-      "AUTOSTART_S" : 
-      {
-        "ALARMTIME" : 2000,
-        "APPMODE" : 
-        [
-          
-          {
-            "VALUE" : "stdAppmode"
-          }
-        ],
-        "CYCLETIME" : 2000
-      },
-      "COUNTER" : "SystemCounter",
-      "NAME" : "periodicAlarm2"
-    },    
-    {
-      "ACTION" : "ACTIVATETASK",
-      "ACTION_S" : 
-      {
         "TASK" : "print"
       },
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 500,
+        "ALARMTIME" : 25,
         "APPMODE" : 
         [
           
@@ -67,7 +49,7 @@
             "VALUE" : "stdAppmode"
           }
         ],
-        "CYCLETIME" : 500
+        "CYCLETIME" : 25
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "periodicAlarm4"
@@ -96,7 +78,7 @@
       "ACTIVATION" : 1,
       "AUTOSTART" : "false",
       "KIND" : "Task",
-      "NAME" : "ACC_input_send",
+      "NAME" : "ACC_speed_set_send",
       "NONPREEMPTABLE" : "false",
       "PRIORITY" : 2,
       "SCHEDULE" : "FULL",
@@ -107,7 +89,7 @@
       "ACTIVATION" : 1,
       "AUTOSTART" : "false",
       "KIND" : "Task",
-      "NAME" : "ACC_speed_set_send",
+      "NAME" : "Receive",
       "NONPREEMPTABLE" : "false",
       "PRIORITY" : 3,
       "SCHEDULE" : "FULL",
@@ -118,20 +100,9 @@
       "ACTIVATION" : 1,
       "AUTOSTART" : "false",
       "KIND" : "Task",
-      "NAME" : "Receive",
-      "NONPREEMPTABLE" : "false",
-      "PRIORITY" : 4,
-      "SCHEDULE" : "FULL",
-      "STACKSIZE" : 128,
-      "USEINTERNALRESOURCE" : "false"
-    },    
-    {
-      "ACTIVATION" : 1,
-      "AUTOSTART" : "false",
-      "KIND" : "Task",
       "NAME" : "print",
       "NONPREEMPTABLE" : "false",
-      "PRIORITY" : 5,
+      "PRIORITY" : 4,
       "SCHEDULE" : "FULL",
       "STACKSIZE" : 128,
       "USEINTERNALRESOURCE" : "false"

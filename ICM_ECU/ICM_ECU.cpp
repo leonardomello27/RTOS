@@ -19,10 +19,18 @@ unsigned char 		mDLC  = 0;
 byte M   = 0;
 byte M1 = 0;
 
+/*
+0x0C1B3049
+0x0D4001B0
+0x18FEF100
+0x18F00503
+*/
+
+
 
 //Id mensagens CAN sand
 #define ACC_speed_set_ID	0x18F00503 //ACC_speed_set
-#define ACC_input_ID		0x0CF00400 //Acc_input
+//#define ACC_input_ID		0x0D4001B0 //Acc_input
 
 
 //Variables received
@@ -33,7 +41,7 @@ byte M1 = 0;
 
 //bool   Fault_signal = 0; // FAULT_SIGNAL
 bool  ACC_input     = 1;
-float Set_speed     = 80/3.6; // setspeed
+float Set_speed     = 0; // setspeed
 bool  ACC_enabled   = 0;
 float Ego_speed     = 0;  
 char Set_speed_send[4];
@@ -49,6 +57,7 @@ MCP_CAN CAN1(10);
 
 void setup()
 {
+	Set_speed = 80/3.6; // setspeed
 	// Initialize the serial interface: baudrate = 115200
 	Serial.begin(115200);
 	
@@ -68,18 +77,12 @@ TASK(ACC_speed_set_send)
 	sprintf(Set_speed_send , "%04X", (int)(Set_speed*256));
 	ACC_speed_set_Data[1] = strtol(Set_speed_send , NULL, 16) >> 8;
 	ACC_speed_set_Data[2] = strtol(Set_speed_send  + 2, NULL, 16);
+	
+	ACC_speed_set_Data[3] = (char)ACC_input;
 
 	M = CAN1.sendMsgBuf(ACC_speed_set_ID, EXT_FRAME, mEEC1_DLC, ACC_speed_set_Data);
 	
-	TerminateTask();
-}
-
-
-TASK(ACC_input_send)
-{
-	ACC_input_Data[1] = (char)ACC_input;
-
-	M1 = CAN1.sendMsgBuf(ACC_input_ID, EXT_FRAME, mEEC1_DLC, ACC_input_Data);
+	Serial.println("ENVIOU ACELERAÇÃO");
 
 	TerminateTask();
 }
@@ -106,17 +109,21 @@ TASK(print)
 {
 	GetResource(res1);
 	
-	Serial.print("ACC_input: ");
-	Serial.print(ACC_input);
+	Serial.print("Recebendo ---- Ego_speed: ");
+	Serial.print(Ego_speed);
+	Serial.print("; ");
+	
+	Serial.print("ACC_enabled: ");
+	Serial.print(ACC_enabled);
+	Serial.println("; ");
+	
+	Serial.print("Enviando ---- ACC_input: ");
+	Serial.print(ACC_speed_set_Data[3]);
 	Serial.print("; ");
 	
 	Serial.print("Set_speed: ");
-	Serial.print(Set_speed);
+	Serial.print((((ACC_speed_set_Data[1] << 8) | ACC_speed_set_Data[2]) / 256));
 	Serial.println(";");
-	
-	Serial.print("Ego_speed: ");
-	Serial.print(Ego_speed);
-	Serial.print("; ");
 
 	ReleaseResource(res1);
 	TerminateTask();

@@ -29,7 +29,7 @@ unsigned char 		mDLC  = 0;
 
 //Id CAN Receive
 #define ACC_speed_set_ID	0x18F00503 //Data dictionary
-#define ACC_input_ID		0x0CF00400 //Data dictionary
+//#define ACC_input_ID		0x0D4001B0 //Data dictionary
 #define EV_RV_RD_data_ID    0x0C1B3049 
 
 
@@ -110,6 +110,10 @@ TASK(Can_Receive)
 			
 			Relative_distance = (mDATA[3] << 8) | mDATA[4]; //Check data dictionary
 			
+<<<<<<< Updated upstream
+=======
+			//Extracting Relative Speed
+>>>>>>> Stashed changes
 			Relative_speed = (mDATA[5] << 8) | mDATA[6]; //Check data dictionary
 			Relative_speed = Relative_speed / (256);
 			
@@ -118,13 +122,22 @@ TASK(Can_Receive)
 			TerminateTask();
 		}
 		
-		if((mID & ACC_input_ID) == ACC_input_ID) {
-			ACC_input = mDATA[0]; //Check data dictionary
+		if((mID & ACC_speed_set_ID) == ACC_speed_set_ID) {
+			
+			Serial.println("RECEBEU MSG ICM_ECU");
+			
+			//Extracting ACC set speed
+			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
+			ACC_speed_set = ACC_speed_set / (256);
+			
+			//Extracting ACC Input
+			ACC_input = mDATA[3];
 			
 			ReleaseResource(res1);
 			TerminateTask();
 		}
 		
+<<<<<<< Updated upstream
 		if((mID & ACC_speed_set_ID) == ACC_speed_set_ID) {
 			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
 			ACC_speed_set = ACC_speed_set / (256);
@@ -134,6 +147,10 @@ TASK(Can_Receive)
 		}
 	}
 	ReleaseResource(res1);
+=======
+		ReleaseResource(res1);
+	}
+>>>>>>> Stashed changes
 	TerminateTask();
 }
 
@@ -157,6 +174,8 @@ TASK(Logic_block)
 	ReleaseResource(res1);
 	
 	M = CAN1.sendMsgBuf(ACC_enabled_ID, EXT_FRAME, DLC_ACC, ACC_enabled_Data);	
+	
+	Serial.println("ENVIOU ENABLED");
 	
 	TerminateTask();
 	
@@ -197,6 +216,8 @@ TASK(Calculate_ACC_Acceleration)
 		ReleaseResource(res1);
 	
 		M1 = CAN1.sendMsgBuf(ID_ACC_Acceleration, EXT_FRAME, DLC_ACC, ACC_Acceleration_Data);
+		
+		Serial.println("ENVIOU ACELERAÇÃO");
 	}	
 	TerminateTask();
 }

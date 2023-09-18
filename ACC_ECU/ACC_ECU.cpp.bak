@@ -104,6 +104,7 @@ TASK(Can_Receive)
 		GetResource(res1);
 		//Read can frame: mID = Identifier, mDLC = Data lenght, mDATA = data frame
 		CAN1.readMsgBuf(&mID, &mDLC, mDATA);
+<<<<<<< Updated upstream
 
 		if((mID & ACC_input_ID) == ACC_input_ID) {
 			ACC_input = mDATA[0]; //Check data dictionary
@@ -113,11 +114,42 @@ TASK(Can_Receive)
 		if((mID & ID_ACC_speed_set) == ID_ACC_speed_set) {
 			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
 			ACC_speed_set = ACC_speed_set / (256);
+=======
+		
+		if((mID & EV_RV_RD_data_ID) == EV_RV_RD_data_ID) {
+			//Extracting Ego speed
+			Serial.println("RECEBEU MSG SIMUARDUINO");
+			Ego_speed = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
+			Ego_speed = Ego_speed / (256);
+			
+			
+			//Extracting Relative Distance
+			Relative_distance = (mDATA[3] << 8) | mDATA[4]; //Check data dictionary
+			
+			//Extracting Relative Speed
+			Relative_speed = (mDATA[5] << 8) | mDATA[6]; //Check data dictionary
+			Relative_speed = Relative_speed / (256);
+			
+			
 			ReleaseResource(res1);
 			TerminateTask();
 		}
+		
+		if((mID & ACC_speed_set_ID) == ACC_speed_set_ID) {
+			//Extracting ACC set speed
+			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
+			ACC_speed_set = ACC_speed_set / (256);
+			
+			//Extracting ACC Input
+			ACC_input = mDATA[3];
+			
+>>>>>>> Stashed changes
+			ReleaseResource(res1);
+			TerminateTask();
+		}
+			ReleaseResource(res1);
 	}
-	ReleaseResource(res1);
+
 	TerminateTask();
 }
 

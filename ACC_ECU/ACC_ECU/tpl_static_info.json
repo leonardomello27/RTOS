@@ -20,7 +20,11 @@
             "VALUE" : "stdAppMode"
           }
         ],
+<<<<<<< Updated upstream
         "CYCLETIME" : 5000
+=======
+        "CYCLETIME" : 30
+>>>>>>> Stashed changes
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCalculate_ACC_Acceleration"
@@ -42,7 +46,11 @@
             "VALUE" : "stdAppMode"
           }
         ],
+<<<<<<< Updated upstream
         "CYCLETIME" : 2000
+=======
+        "CYCLETIME" : 10
+>>>>>>> Stashed changes
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_Receive"
@@ -64,7 +72,11 @@
             "VALUE" : "stdAppMode"
           }
         ],
+<<<<<<< Updated upstream
         "CYCLETIME" : 5500
+=======
+        "CYCLETIME" : 40
+>>>>>>> Stashed changes
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_print"

@@ -34,8 +34,13 @@ CPU ECM {
 			TASK = Can_Receive;
 		};  
 		AUTOSTART = TRUE {
+<<<<<<< Updated upstream
 			ALARMTIME = 2000;
 			CYCLETIME = 2000;
+=======
+			ALARMTIME = 1000;
+			CYCLETIME = 10;
+>>>>>>> Stashed changes
 			APPMODE = stdAppMode;
 		};
 	};
@@ -78,7 +83,11 @@ CPU ECM {
 		};  
 			AUTOSTART = TRUE {
 			ALARMTIME = 5000;
+<<<<<<< Updated upstream
 			CYCLETIME = 5000;
+=======
+			CYCLETIME = 30;
+>>>>>>> Stashed changes
 			APPMODE   = stdAppMode;
 		};
 	};	
@@ -98,8 +107,13 @@ CPU ECM {
 			TASK = print;
 		};  
 		AUTOSTART = TRUE {
+<<<<<<< Updated upstream
 			ALARMTIME = 5500;
 			CYCLETIME = 5500;
+=======
+			ALARMTIME = 4000;
+			CYCLETIME = 40;
+>>>>>>> Stashed changes
 			APPMODE = stdAppMode;
 		};
 	};
