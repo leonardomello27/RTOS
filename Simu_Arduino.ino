@@ -101,6 +101,7 @@ void loop()
 	
 		//Simulation of vehicles behavior
 		Ego_speed = Ego_speed + interval*Ego_acceleration;
+		
 		Lead_speed = Lead_speed + interval*Lead_acceleration;
 
 		//Calculation of Ego Car position
@@ -117,7 +118,8 @@ void loop()
 		}else{
 			Relative_distance_pres = Relative_distance_pres;
 		}
-			timePrevious = timeCurrent;
+		
+		timePrevious = timeCurrent;
 		
 		Serial.print("Ego_acceleration:");
 		Serial.print(Ego_acceleration);
@@ -133,22 +135,6 @@ void loop()
 
 		Serial.print("Rspeed:");
 		Serial.println(Relative_speed);
-		//Serial.println(";");
-
-    /*
-		Serial.print("Time Current: ");
-		Serial.print(timeCurrent);
-		Serial.println("; ");
-
-    
-		Serial.print("Time Previous: ");
-		Serial.print(timePrevious);
-		Serial.println("; ");
-
-		Serial.print("Time MILIS ");
-		Serial.print(millis());
-		Serial.println("; ");
-		*/	
 		
 		//CAN Message Sender
 		sprintf(Ego_Speed_send , "%04X", (int)(Ego_speed*256));
@@ -164,9 +150,5 @@ void loop()
 		Send_data[6] = strtol(Relative_Speed_send  + 2, NULL, 16);
 	
 		ret = CAN1.sendMsgBuf(EV_RV_RD_data_ID,EXT_FRAME,DLC,Send_data);
-
-	/*	if (ret == CAN_OK){
-			Serial.println("SIMU ARDUINO SENT"); 
-		}*/
 	}	
 }

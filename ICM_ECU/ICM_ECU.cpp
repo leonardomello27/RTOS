@@ -74,9 +74,21 @@ void setup()
 
 TASK(ACC_speed_set_send)
 {
-	sprintf(Set_speed_send , "%04X", (int)(Set_speed*256));
-	ICM_Data[1] = strtol(Set_speed_send , NULL, 16) >> 8;
-	ICM_Data[2] = strtol(Set_speed_send  + 2, NULL, 16);
+	
+	if (Serial.available() > 0){ // Verifica se há dados disponíveis na porta serial
+		Set_speed = Serial.parseInt();  // Lê o valor recebido da porta serial
+		if (Set_speed < 40){
+			
+            Serial.println("Velocidade de Set Speed deve ser maior que 40 km//h");
+			
+        } else{
+			
+			sprintf(Set_speed_send , "%04X", (int)((Set_speed/3.6)*256));
+			ICM_Data[1] = strtol(Set_speed_send , NULL, 16) >> 8;
+			ICM_Data[2] = strtol(Set_speed_send  + 2, NULL, 16);
+        }
+    }
+	Serial.read();
 	
 	ICM_Data[3] = (char)ACC_input;
 
