@@ -53,8 +53,8 @@ void setup()
 	//Define set speed
 	Set_speed = 80/3.6;
 	
-	if (Set_speed < 40) Set_speed = 40;
-	else if (Set_speed > 120) Set_speed = 120;
+	if (Set_speed < 11) Set_speed = 11;
+	else if (Set_speed > 33) Set_speed = 33;
 	
 	//Initialize the serial interface: baudrate = 115200
 	Serial.begin(115200);
