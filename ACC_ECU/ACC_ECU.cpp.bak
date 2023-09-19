@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////
 // Universidade Federal de Pernambuco - UFPE	//	  
 // Residência Tecnológica em Software Automotivo//      			  
-// Final Project                                //
+// Final Project -  Team 1                      //
 //////////////////////////////////////////////////
 
 #include "tpl_os.h"
@@ -9,53 +9,45 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//ID CAN Receive
+#define ACC_speed_set_ID	0x18F00503 //Data dictionary
+#define EV_RV_RD_data_ID    0x0C1B3049 //Data dictionary
 
-#define BUFF_MAX 	10
-#define BUFF_MIN 	00
-volatile int		buffer = BUFF_MAX;
-
+//Id mensagens CAN sand
+#define ACC_acceleration_ID		0x0D4001B0 //Data dictionary
+#define ACC_enabled_ID			0x18FEF100 //Data dictionar
 
 //Macros send
-#define DLC_ACC				8
-#define EXT_FRAME 			1
-static 						byte M  = 0;
-static 						byte M1 = 0;
+#define DLC_ACC		8
+#define EXT_FRAME 	1
+static 				byte M  = 0;
+static 				byte M1 = 0;
 
 //Variables received
 long unsigned int 	mID;
 unsigned char 		mDATA[8];
 unsigned char 		mDLC  = 0;
 
-
-//Id CAN Receive
-#define ACC_speed_set_ID	0x18F00503 //Data dictionary
-//#define ACC_input_ID		0x0D4001B0 //Data dictionary
-#define EV_RV_RD_data_ID    0x0C1B3049  
-
-
-//Id mensagens CAN sand
-#define ID_ACC_Acceleration		0x0D4001B0 //Data dictionary
-#define ACC_enabled_ID			0x18FEF100 //Data dictionar
-
+//Definition of receive buffer size
+#define BUFF_MAX 	10
+#define BUFF_MIN 	00
+volatile int		buffer = BUFF_MAX;
 
 //Calibration Variables
-const float D_default  = 10;
-float  Time_gap_base   = 3;
+const float D_default  = 10;  
 const float Kverr_gain = 0.5;
 const float Kxerr_gain = 0.2;
 const float Kvx_gain   = 0.04;
+float       Time_gap_base         = 2.5;
 const float Ego_acceleration_min  = -5;
 const float Ego_acceleration_max  = 1.47;
 
-
 //Variables received by CAN network
-bool  ACC_input         = 1; 
+bool  ACC_input         = 0; 
 float Ego_speed         = 0;
 float Relative_distance = 0;
 float Relative_speed    = 0;
 float ACC_speed_set     = 0;
-float Acceleration_aux     = 0;
-
 
 //Variables Logic Block
 bool ACC_enabled  = 0;
@@ -64,17 +56,9 @@ bool Gas_pedal    = 0;
 bool Fault_signal = 0;
 bool aux          = 0;
 
-
 //ACC Variables
-float Time_gap = 0;
-bool  Rain          = 0;
-float Acceleration  = 0;
-char  Acceleration_send[5];
-float Safe_distance = 15;
-float Control_v     = 0;
-float Control_x     = 0;
-float SafeD_relD	= 0;
-
+float Time_gap    = 0;
+bool  Rain        = 0;
 
 //CAN FRAME_DATA START 
 unsigned char ACC_Acceleration_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -154,7 +138,11 @@ TASK(Logic_block)
 			aux = 0;
 		}
 	}
+	
 	ACC_enabled_Data[1] = (char)ACC_enabled;
+	ACC_enabled_Data[2] = (char)Fault_signal;
+	ACC_enabled_Data[3] = (char)Gas_pedal;
+	ACC_enabled_Data[4] = (char)Brake_pedal;
 	
 	ReleaseResource(res1);
 	
@@ -169,6 +157,12 @@ TASK(Logic_block)
 
 TASK(Calculate_ACC_Acceleration) 
 {
+	float Acceleration  = 0;
+	float Safe_distance = 0;
+	float Control_v     = 0;
+	float Control_x     = 0;
+	float SafeD_relD	= 0;
+	char  Acceleration_send[5];
 	
 	if(Rain){
 		Time_gap = 2*Time_gap_base;
@@ -193,19 +187,21 @@ TASK(Calculate_ACC_Acceleration)
 			Acceleration = (Control_x < Control_v) ? Control_x : Control_v;
 			
 		}
+		
 		Acceleration = (Acceleration < Ego_acceleration_min) ? Ego_acceleration_min : (Acceleration > Ego_acceleration_max) ? Ego_acceleration_max : Acceleration;
+		
 		sprintf(Acceleration_send , "%04X", (int)(((Acceleration)/0.01)+5));
 		ACC_Acceleration_Data[1] = strtol(Acceleration_send , NULL, 16) >> 8;
 		ACC_Acceleration_Data[2] = strtol(Acceleration_send  + 2, NULL, 16);
 	
 		ReleaseResource(res1);
 	
-		M1 = CAN1.sendMsgBuf(ID_ACC_Acceleration, EXT_FRAME, DLC_ACC, ACC_Acceleration_Data);
+		M1 = CAN1.sendMsgBuf(ACC_acceleration_ID, EXT_FRAME, DLC_ACC, ACC_Acceleration_Data);
+		
 		if (M1 == CAN_OK){
-		Serial.println("ENVIOU ACELERAÇÃO"); 
-		M1=0;
-	}
-		//Serial.println("ENVIOU ACELERAÇÃO");
+			Serial.println("ENVIOU ACELERAÇÃO"); 
+			M1 = 0;
+		}
 	}	
 	TerminateTask();
 }
@@ -220,8 +216,7 @@ TASK(print)
 	Serial.print("; ");
 	
 	Serial.print("Aceleração: ");
-	Acceleration_aux  = (ACC_Acceleration_Data[1] << 8) | ACC_Acceleration_Data[2];
-	Serial.print((Acceleration_aux-5)*0.01);
+	Serial.print((((ACC_Acceleration_Data[1] << 8) | ACC_Acceleration_Data[2])-5)*0.01);
 	Serial.println(";");
 	
 	

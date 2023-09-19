@@ -43,10 +43,10 @@ float Ego_acceleration	= 0;
 float Lead_acceleration = 0;
 float Lead_position     = 50.0;      //Initial lead car position (m)
 float Ego_position      = 10.0;      //Initial ego car position  (m)
-float Lead_speed 		= 90.0/3.6;  //Initial lead car position (m/s)
-float interval  		= 0.001;
+float Lead_speed 		= 55.0/3.6;  //Initial lead car position (m/s)
+float interval  		= 0.01;
 int   counter   		= 0;
-float Relative_distance_past = 5;
+float Relative_distance_past = 0;
 unsigned long timePrevious 	 = 0;
 unsigned long timeCurrent 	 = 0;
 unsigned long timeVariation  = 0;
@@ -72,7 +72,7 @@ void setup()
 	while (CAN1.begin(MCP_ANY, CAN_500KBPS, MCP_8MHZ) != CAN_OK) {
         delay(200);        
     }
-	Serial.println("MCP2515 can_send Started!");
+	//Serial.println("MCP2515 can_send Started!");
 	//Defines operation mode
 	CAN1.setMode(MCP_NORMAL);
 	pinMode(2, INPUT);
@@ -84,14 +84,14 @@ void loop()
 	timeCurrent = millis();
 	timeVariation = timeCurrent-timePrevious;
   
-	if (timeVariation >= 30){
+	if (timeVariation >= 15){
 		
 		if(!digitalRead(2)){
 			CAN1.readMsgBuf(&mID, &mDLC, mDATA);
 			if((mID & Ego_acceleration_ID) == Ego_acceleration_ID){
 				Ego_acceleration = (mDATA[1] << 8) | mDATA[2];
 				Ego_acceleration = (Ego_acceleration-5)*0.01;
-				Serial.println("RECEBEU ACC");
+				//Serial.println("RECEBEU ACC");
 			}else{
 				Ego_acceleration = Ego_acceleration;
 			}
@@ -118,33 +118,34 @@ void loop()
 			Relative_distance_pres = Relative_distance_pres;
 		}
 			timePrevious = timeCurrent;
-	/*	
-		Serial.print("Rebendo ---- Ego_acceleration: ");
-		Serial.print(Ego_acceleration);
-		Serial.println("; ");
-	
-		Serial.print("Enviando ---- Relative Distance: ");
-		Serial.print(Relative_distance_pres);
-		Serial.print("; ");
 		
-		Serial.print("EGO SPEED: ");
+		Serial.print("Ego_acceleration:");
+		Serial.print(Ego_acceleration);
+		Serial.print(",");
+	
+		Serial.print("Relative Distance:");
+		Serial.print(Relative_distance_pres);
+		Serial.print(",");
+		
+		Serial.print("EGO SPEED:");
 		Serial.print(Ego_speed);
-		Serial.print("; ");
+		Serial.print(",");
 
-		Serial.print("Relative Speed: ");
-		Serial.print(Relative_speed);
-		Serial.println("; ");
+		Serial.print("Rspeed:");
+		Serial.println(Relative_speed);
+		//Serial.println(";");
 
-		Serial.print("Time Current for this Cycle: ");
+    /*
+		Serial.print("Time Current: ");
 		Serial.print(timeCurrent);
 		Serial.println("; ");
 
     
-		Serial.print("Time Previous for this Cycle: ");
+		Serial.print("Time Previous: ");
 		Serial.print(timePrevious);
 		Serial.println("; ");
 
-		Serial.print("Time MILIS for this Cycle: ");
+		Serial.print("Time MILIS ");
 		Serial.print(millis());
 		Serial.println("; ");
 		*/	
@@ -164,8 +165,8 @@ void loop()
 	
 		ret = CAN1.sendMsgBuf(EV_RV_RD_data_ID,EXT_FRAME,DLC,Send_data);
 
-		if (ret == CAN_OK){
+	/*	if (ret == CAN_OK){
 			Serial.println("SIMU ARDUINO SENT"); 
-		}
+		}*/
 	}	
 }
