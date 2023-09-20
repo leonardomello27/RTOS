@@ -9,58 +9,59 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//ID CAN Receive
+//ID CAN Receive used to receive CAN messages (ICM and simulation). Used to compare ID field of received CAN FRAME.
 #define ACC_speed_set_ID	0x18F00503 //Data dictionary
 #define EV_RV_RD_data_ID    0x0C1B3049 //Data dictionary
 
-//Id mensagens CAN sand
+//Id mensagens CAN used to send Data on CAN bus. Used ID field of CAN FRAME
 #define ACC_acceleration_ID		0x0D4001B0 //Data dictionary
 #define ACC_enabled_ID			0x18FEF100 //Data dictionar
 
-//Macros send
+//Macros used to send and receive CAN data.
 #define DLC_ACC		8
 #define EXT_FRAME 	1
-static 				byte M  = 0;
+static 				byte M  = 0; 
 static 				byte M1 = 0;
 
 //Variables received
-long unsigned int 	mID;
-unsigned char 		mDATA[8];
-unsigned char 		mDLC  = 0;
+long unsigned int 	mID; //Used to store, compare and/or write on ID field (CAN message frame)
+unsigned char 		mDATA[8]; //Used to store DATA to be sent on CAN bus. Represents the CAN data field.
+unsigned char 		mDLC  = 0; //Represents how much bytes of the DATA field are actual transmited data.
 
-//Definition of receive buffer size
+//Definition of receive buffer size for CAN MCP 2515 module. It has a limit of reception and transmit buffers.
+//Check datasheet for more details
 #define BUFF_MAX 	10
 #define BUFF_MIN 	00
 volatile int		buffer = BUFF_MAX;
 
 //Calibration Variables
-const float D_default  = 10;  
-const float Kverr_gain = 0.5;
-const float Kxerr_gain = 0.2;
-const float Kvx_gain   = 0.04;
-float       Time_gap_base         = 3;
-const float Ego_acceleration_min  = -5;
-const float Ego_acceleration_max  = 1.47;
+const float D_default  = 10;  //Default distance between ACC (ego) car and front (lead) car, regardless of time gap.
+const float Kverr_gain = 0.5; //gain used on ACC calculation.
+const float Kxerr_gain = 0.2; //gain used on ACC calculation.
+const float Kvx_gain   = 0.04; //gain used on ACC calculation.
+float       Time_gap_base         = 3; //Base time gap (seconds) between ego and lead car. Used to define Time_Gap based on context
+const float Ego_acceleration_min  = -5; //Maximum brake value on m/s^2
+const float Ego_acceleration_max  = 1.47;//Maximum acceleration allowed for the ACC, in m/s^2
 
 //Variables received by CAN network
-bool  ACC_input         = 0; 
-float Ego_speed         = 0;
-float Relative_distance = 0;
-float Relative_speed    = 0;
-float ACC_speed_set     = 0;
+bool  ACC_input         = 0; //Represents the ACC input by the user. Represents the user desire to enable or disable ACC. Sent by ICM ECU.
+float Ego_speed         = 0; //Represents ACC(ego) current speed. Sent by Simulation ECU.
+float Relative_distance = 0; //Represents the relative distance between cars. Represents the distance sensor value. Sent by Simulation ECU.
+float Relative_speed    = 0; //Represents the relative speed between cars. Sent by Simulation ECU.
+float ACC_speed_set     = 0; //Represents the desired speed (user input, setpoint) for the acc to reach, if the context allows it. Sent by ICM ECU.
 
 //Variables Logic Block
-bool ACC_enabled  = 0;
-bool Brake_pedal  = 0;
-bool Gas_pedal    = 0;
-bool Fault_signal = 0;
-bool aux          = 0;
+bool ACC_enabled  = 0; //Represents if the ACC was enabled or disabled.
+bool Brake_pedal  = 0; //Represents if the brake pedal was pressed.
+bool Gas_pedal    = 0; //Represents if the gas pedal was pressed.
+bool Fault_signal = 0; //Represents if a faulty sensor was detected.
+bool aux          = 0; //Auxiliary variable to detect context of ACC (If was disabled and became enabled, if was enabled and became disabled, etc)
 
 //ACC Variables
-float Time_gap    = 0;
-bool  Rain        = 0;
+float Time_gap    = 0; //Calculated time gap based on Time_gap_base and context(rain). If it is raining, Time_gap =Time_gap_base *2
+bool  Rain        = 0; //Represents if the system detected rain.
 
-//CAN FRAME_DATA START 
+//CAN FRAME_DATA START. Used to store data and send it via CAN bus in their respective CAN frame messages. Check data dictionary for more information of sending and receiving it.
 unsigned char ACC_Acceleration_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 unsigned char ACC_enabled_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
@@ -77,7 +78,7 @@ void setup() {
     }
 	//Defines operation mode
 	CAN1.setMode(MCP_NORMAL);
-	pinMode(2, INPUT);
+	pinMode(2, INPUT); //Defines digital pin 2 as input
 }
 
 
@@ -105,7 +106,7 @@ TASK(Can_Receive)
 		
 		if((mID & ACC_speed_set_ID) == ACC_speed_set_ID) {
 			
-			Serial.println("RECEBEU MSG ICM_ECU");
+			Serial.println("CAN ICM message received");
 			
 			//Extracting ACC set speed
 			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
@@ -123,7 +124,8 @@ TASK(Can_Receive)
 	TerminateTask();
 }
 
-
+//Logic_block task is used to detect the context and decide if the acc should be enabled or disabled.
+//The conditions follows the requirements.
 TASK(Logic_block)
 {
 	GetResource(res1);
@@ -139,16 +141,16 @@ TASK(Logic_block)
 		}
 	}
 	
-	ACC_enabled_Data[1] = (char)ACC_enabled;
+	ACC_enabled_Data[1] = (char)ACC_enabled; 
 	ACC_enabled_Data[2] = (char)Fault_signal;
 	ACC_enabled_Data[3] = (char)Gas_pedal;
 	ACC_enabled_Data[4] = (char)Brake_pedal;
 	
-	ReleaseResource(res1);
+	//Send CAN message to ICM ECU detailing current ACC situation. Used to inform the user.
 	
 	M = CAN1.sendMsgBuf(ACC_enabled_ID, EXT_FRAME, DLC_ACC, ACC_enabled_Data);	
-	
-	Serial.println("ENVIOU ENABLED");
+	ReleaseResource(res1);
+	Serial.println("CAN message sent to ICM ECU");
 	
 	TerminateTask();
 	
@@ -157,13 +159,14 @@ TASK(Logic_block)
 
 TASK(Calculate_ACC_Acceleration) 
 {
-	float Acceleration  = 0;
-	float Safe_distance = 0;
-	float Control_v     = 0;
-	float Control_x     = 0;
-	float SafeD_relD	= 0;
+	float Acceleration  = 0; //Acceleration to be calculated by ACC ECU. Meters per second^2
+	float Safe_distance = 0; //Calculated safe distance. Safe_distance = D_default + (Time_gap*Ego_speed). Unit: Meters
+	float Control_v     = 0; //Used to calculate acceleration when the context is "Control velocity mode"
+	float Control_x     = 0; //Used to calculate acceleration when the context is "Control distance mode"
+	float SafeD_relD	= 0; //Difference between calculated safe distance and measured distance (relative distance)
 	char  Acceleration_send[5];
 	
+	//Defines Time_gap value based on rain signal.
 	if(Rain){
 		Time_gap = 2*Time_gap_base;
 	}else{
@@ -172,7 +175,7 @@ TASK(Calculate_ACC_Acceleration)
 	
 	GetResource(res1);
 	
-	if(ACC_enabled)
+	if(ACC_enabled) //If ACC is enabled, do the following.
 	{
 		Safe_distance = (Ego_speed * Time_gap) + D_default;
 		SafeD_relD = Safe_distance - Relative_distance;
@@ -188,6 +191,7 @@ TASK(Calculate_ACC_Acceleration)
 			
 		}
 		
+		//Limits acceleration values based on defined range
 		Acceleration = (Acceleration < Ego_acceleration_min) ? Ego_acceleration_min : (Acceleration > Ego_acceleration_max) ? Ego_acceleration_max : Acceleration;
 		
 		sprintf(Acceleration_send , "%04X", (int)(((Acceleration)/0.01)+5));
