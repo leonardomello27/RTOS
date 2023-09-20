@@ -1,7 +1,13 @@
 //////////////////////////////////////////////////
 // Universidade Federal de Pernambuco - UFPE	//	  
 // Residência Tecnológica em Software Automotivo//      			  
-// Final Project -  Team 1                      //
+// Final Project -  Team 1 
+// Authors:
+//	Matheus Henrique de Souza Passos
+//	Leonardo Melo
+//	Vitor Fassarano
+//  Gabriel Oliveira
+//	Lucas Sobral
 //////////////////////////////////////////////////
 
 #include "tpl_os.h"
