@@ -1,0 +1,43 @@
+This file will be used to descibre how the system works, both as a group and individually.
+----------------------------------------------------------------------------------------------------------------------                                   The ACC ECU:
+
+The Adaptive Cruise Control (ACC) is a system used to control the vehicle speed based on user chosen value
+and current context, meaning the system will control the car speed in a way to:
+    First priority: Ensure safety by controlling the speed and distance between itself and the front car.
+    Second priority: Control speed to reach either the user desired speed or the front car speed, whichever is lowest.
+Both of these objectives are necessary to avoid colision and thus, material or life damage.
+The ACC ECU calculates the necessary acceleration (or slowdown) to reach a certain speed or distance, whilist
+taking in consideration the system's current context, such as rain detection, faulty sensors detection, safe distances, etc.
+
+
+The ACC set speed value and ACC enable command are provided by the user (through the ICM ECU), but the ACC ECU will verify
+if the current context is allowed to activate the ACC system, taking in consideration a few things, such as:
+Minimum and maximum current speed, the embedded system integrity (fault signal), pressure on the pedals (any pressure disables the ACC),etc.
+If the conditions are met, the ACC system is enabled. Othewise, it is disabled. Both cases are informed to the user through ICM ECU.
+
+    The system has 2 main modes that decides its behaviour:
+    1-Distance control mode, used when the system deems the distance between cars are too close to ensure safety.
+        In this mode, the system calculates the necessary acceleration to reach the safe distance.
+    2-Speed control mode, used when the safe distance is reached and thus, the ACC system must reach the lowest between  
+    the user or the front car speed.
+        In this mode, the system calculates the necessary acceleration to reach cruise speed based on context.
+
+To do so, the ACC system must have access to many information, such as:
+    Current speed, relative speed (ACC x Front car), distance between cars, rain detection, gas and brake pedal pressure detection, etc.
+
+The safe distance is determined by the following logic:
+    There are two calibration variables called D_default and Default_Time_Gap.
+    D_default (meters): Minimum distance between ACC car (EGO car) and front car (Lead car), regardless of current speed or time gap.
+    Default_Time_Gap (seconds): Time gap between ego and lead car based on ego current speed. 
+        The Time_gap variable is calculated as following: 
+            Time_gap=Default_Time_Gap, if not raining. If raining, Time_gap = Default_Time_Gap * 2.
+                Reasoning: Water can make the car take longer to reduce speed. 
+Thus, the safe distance is calculated as such: Safe_distance = D_default + (Time_gap*Ego_speed); Whereas Ego_speed is in meters per second.
+
+After calculating the acceleration based on current context, the acceleration must be limited to the minimum and maximum values.
+    Reasoning: accelerations must be confortable to user. Slowdown is the minimum value and represents brakes capacity "unrestricted" for safety.
+
+ACC ECU OUTPUTS:
+    The ACC current state (enabled, sensors situation, etc) are sent to the ICM ECU for user visualization.
+    The ACC calcualted acceleration is sent to the simulation ECU, which will in turn generate a new set of data for the simulation to continue.
+    
