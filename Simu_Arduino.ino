@@ -111,6 +111,12 @@ void loop()
 				Ego_acceleration = Ego_acceleration;
 			}
 		}
+		
+		if (Serial.available() > 0){ // Verifica se há dados disponíveis na porta serial
+			Lead_acceleration = Serial.parseInt();  // Lê o valor recebido da porta serial
+			Lead_acceleration = (Lead_acceleration < Lead_acceleration_min) ? Lead_acceleration_min : (Lead_acceleration > Lead_acceleration_max) ? Lead_acceleration_max;
+		}
+		Serial.read();
 	
 		Relative_distance_past = Relative_distance_pres; //Storage of the last value of Relative Distance
 	
