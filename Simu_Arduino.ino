@@ -63,6 +63,8 @@ float Relative_distance_past = 0;  	//The previous' iteraction relative distance
 unsigned long timePrevious 	 = 0;  	//Time mark from the previous iteraction. 
 unsigned long timeCurrent 	 = 0;	//Time mark for the current iteraction.
 unsigned long timeVariation  = 0;	//Difference between marked times between iteractions
+const float Lead_acceleration_min  = -1; //Maximum brake value on m/s^2 for lead car
+const float Lead_acceleration_max  = 1;//Maximum acceleration allowed for the Lead, in m/s^2
 
 
 //Variables to store CAN data to be sent. Used to build the "data" field.
@@ -113,8 +115,8 @@ void loop()
 		}
 		
 		if (Serial.available() > 0){ // Verifica se há dados disponíveis na porta serial
-			Lead_acceleration = Serial.parseInt();  // Lê o valor recebido da porta serial
-			Lead_acceleration = (Lead_acceleration < Lead_acceleration_min) ? Lead_acceleration_min : (Lead_acceleration > Lead_acceleration_max) ? Lead_acceleration_max;
+			Lead_acceleration = Serial.parseFloat();  // Lê o valor recebido da porta serial
+			Lead_acceleration = (Lead_acceleration < Lead_acceleration_min) ? Lead_acceleration_min : (Lead_acceleration > Lead_acceleration_max) ? Lead_acceleration_max:Lead_acceleration;
 		}
 		Serial.read();
 	
@@ -154,6 +156,10 @@ void loop()
 		
 		Serial.print("EGO SPEED:");
 		Serial.print(Ego_speed);
+		Serial.print(",");
+
+    Serial.print("LEAD SPEED:");
+		Serial.print(Lead_speed);
 		Serial.print(",");
 
 		Serial.print("Rspeed:");
