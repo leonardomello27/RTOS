@@ -1,5 +1,56 @@
 This file will be used to descibre how the system works, both as a group and individually.
-----------------------------------------------------------------------------------------------------------------------                                   The ACC ECU:
+
+Sections in Order
+1-What is used on this project?
+2-System Description
+3-Individual ECU description
+
+=========================================================================================================================================
+                                                What is used on this project?
+=========================================================================================================================================
+IMPORTANT: If you wish to only reproduce the code in your own embedded system with atmega328p (old bootloader), you can use the "image"
+files presents in each ECU folder. Just upload it to each microcontroller using OLD BOOTLOADER. For the circuit, you only need to connect
+the system with microcontroller (arduino nanos, in this case) and MPC2515 CAN connected in a breadboad. A good example is present in the
+following link, without the sensors and LCD: https://how2electronics.com/interfacing-mcp2515-can-bus-module-with-arduino/
+For 3 MPC2515 CAN module, you only need to connect each one to its own microcontroller and then, connect the modules between themselves
+by connecting the HIGH and LOW pins (CAN_H and CAN_L)  presents on the modules.
+The environment setup can be quite long to be explained here and we do not have permission (yet) to share the guide we used.
+Thus, feel free to change the Trampoline RTOS to any of your linking.
+
+For this project, the following softwares were used:
+
+    1- Notepad++ version 8.2.1, 32 Bits version. Install all componentes except localization. Do not update when asked.
+        A- This is used as a IDE with some macros to automatize the process of compiling and uploading.
+    2- Arduino-cli v0.20.1, 64 bits version.
+    3- Python 2.7.14 (USE THIS VERSION for the Trampoline RTOS).
+    4- MCP2515_CAN library from coryjfowler: https://github.com/coryjfowler/MCP_CAN_lib , Used to program the MCP2515 CAN module.
+    5- Trampoline RTOS, used to implement RTOS: https://github.com/TrampolineRTOS/trampoline
+    6- AVR 8-bit Toolchain v3.62 – Windows.
+
+
+For this project, the following hardware were used:
+
+    1- 3 Arduinos nano, with the OLD bootloader (IMPORTANT)
+    2- 3 MCP2515 CAN module, used to enable CAN communication between the microcontrollers.
+    3- Jumpers for circuity prototype connections. (Male to female, and male to male jumpers).
+    4- USB cables that fits the arduino nano port AND can transport DATA. Charging cables only will not work.
+        A- The USB cable that usually works are USB 2.0 A to 2.0 mini B.
+        B- In this project, the USB cable is to Upload the compiled code to the microcontrollers.
+        C- They are also used to power the Arduino via a computed serial port. For more complex project, it may require it's own power source.
+    5- A computer to be connected to the Arduinos. In this project, it is used to both power and upload compiled code.
+        A- It is also used to receive serial data representing the user input, allowing us to interact with the system during its execution.
+=========================================================================================================================================
+                                                System Description
+=========================================================================================================================================
+
+
+
+
+=========================================================================================================================================
+                                                Individual ECU Description
+=========================================================================================================================================
+
+-------------------------------------------     The ACC ECU      ------------------------------------------------------------------------------
 
 The Adaptive Cruise Control (ACC) is a system used to control the vehicle speed based on user chosen value
 and current context, meaning the system will control the car speed in a way to:
