@@ -15,7 +15,7 @@ following link, without the sensors and LCD: https://how2electronics.com/interfa
 For 3 MPC2515 CAN module, you only need to connect each one to its own microcontroller and then, connect the modules between themselves
 by connecting the HIGH and LOW pins (CAN_H and CAN_L)  presents on the modules.
 The environment setup can be quite long to be explained here and we do not have permission (yet) to share the guide we used.
-Thus, feel free to change the Trampoline RTOS to any of your linking.
+Thus, feel free to change the Trampoline RTOS to any of your linking, but it will require to change the code.
 
 For this project, the following softwares were used:
 
@@ -39,16 +39,57 @@ For this project, the following hardware were used:
         C- They are also used to power the Arduino via a computed serial port. For more complex project, it may require it's own power source.
     5- A computer to be connected to the Arduinos. In this project, it is used to both power and upload compiled code.
         A- It is also used to receive serial data representing the user input, allowing us to interact with the system during its execution.
+
 =========================================================================================================================================
                                                 System Description
 =========================================================================================================================================
+A more simplified description of the system is descibred in this section.
 
+The system is composed of 3 ECUs and one CAN bus to allow communication between them. Each ECU has its own functions, which will be describred bellow:
 
+    Simulation ECU: 
+        Responsible for running a simulation to generate DATA to be feed to the system. Normally, this would be an ECU that receives
+        sensors outputs, but we do not have the means to execute live test or hardware testes and thus, it is necessary to simulate the environment
+        to generate the "would be" sensors DATA. Also, it would not be a good to test to run it on a static environment, since the system behaviour
+        would not be validated correctly.
+        The simulation ECU simulates both the ACC car (Ego) and front car (lead) position and speed to generate the "sensors" DATA of current speed,distance 
+        and relative speed, necessary for the calculations on the ACC ECU. The ACC ECU provides, after its calculations, the necessary acceleration 
+        for the ego car to reach the desired safe distance or speed and thus, affects the simulation by providing the ego speed variation for the
+        next iteraction.
+    
+    ACC ECU:
+        Responsible for output the calculate acceleration to reach the desired speed or safe distance, based on the system current context.
+        It is also Responsible for enabling and disabling the ACC ECU based on context and user input.
+        The necessary DATA to perform the acceleration calculation are provided by the Simulation ECU via CAN bus, whilist the ICM ECU 
+        provides the user input to enable (or disable) the ACC and the user desired speed target for it. It is important to note that while the user may
+        provide the input to enable the ACC, it is the ACC ECU that verifies the current context to judge if the ACC can be enabled.
+        The ACC ECU also provides the ACC current state (enabled, disabled, etc) to the ICM ECU via CAN bus.
 
+    ICM ECU:
+        Responsible for providing the user with information regarding the system (such as current speed, ACC status, etc) and capture user input
+        to be sent to the ACC ECU. The user input consists of the ACC enable signal and the desired speed target (set speed).
+        This ECU also provides the serial prints necessary for us to analyse the system during its execution in both a graphical manner and
+        text manner. This is done to avoid overload of the others ECUs, since Serial prints can take quite a bit of memory and time.
 
+Each one of the ECUs codes has a .pol file (Example: ACC_ECU.cpp and ACC_ECU.oil) that describres the Real Time Operational System (RTOS) behaviour,
+which is programmed by the user (programmer) to fit its system's criteria.
+In a simplified manner, we can descibre the main points to control the RTOS behaviour in the following fields:
+
+    1- Task: It is basically a time based function call that will be called whenever the RTOS scalonator allows it to access the CPU. The scalonator
+        behaviour is controlled by the user (programmer), such as the scalonation type (full preemptive, non preemptive, etc), alarm time and cycle time.
+        Also, each task has it's own priority value (lower = more priority) in case of conflict between task on the scalonation, depnending of the
+        scalonation chosen pattern.
+    2- Alarms:  Each alarm has a group of Tasks that are controlled by this alarm, controlling when it's first execution happens (alarmtime fiedl) and periodic
+    re-execution rate (cycletime field). The programmer provides a integer number representing the value time.
+        This time is based on the microcontroller timer, and we can aproximate the value 1000 to 1000 ms, but in reality is close the 1000 to 1024 ms.
+        In arduino, this value is the systick, where in 16 MHz arduino a tick happens each 1024 us. Thus, 1000 ticks represents 1024 ms.
+    For more information: http://www.irisa.fr/alf/downloads/puaut/TPNXT/SummaryOSEK.htm
+
+    
 =========================================================================================================================================
                                                 Individual ECU Description
 =========================================================================================================================================
+A more detailed explaination of each ECU is written in this section.
 
 -------------------------------------------     The ACC ECU      ------------------------------------------------------------------------------
 
