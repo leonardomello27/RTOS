@@ -71,7 +71,7 @@ The system is composed of 3 ECUs and one CAN bus to allow communication between 
         This ECU also provides the serial prints necessary for us to analyse the system during its execution in both a graphical manner and
         text manner. This is done to avoid overload of the others ECUs, since Serial prints can take quite a bit of memory and time.
 
-Each one of the ECUs codes has a .pol file (Example: ACC_ECU.cpp and ACC_ECU.oil) that describres the Real Time Operational System (RTOS) behaviour,
+Each one of the ECUs codes has a .oil file (Example: ACC_ECU.cpp and ACC_ECU.oil) that describres the Real Time Operational System (RTOS) behaviour,
 which is programmed by the user (programmer) to fit its system's criteria.
 In a simplified manner, we can descibre the main points to control the RTOS behaviour in the following fields:
 
@@ -85,11 +85,22 @@ In a simplified manner, we can descibre the main points to control the RTOS beha
         In arduino, this value is the systick, where in 16 MHz arduino a tick happens each 1024 us. Thus, 1000 ticks represents 1024 ms.
     For more information: http://www.irisa.fr/alf/downloads/puaut/TPNXT/SummaryOSEK.htm
 
+The communication between ECUs happens via CAN bus using the MPC2515 CAN module, whereas each message CAN frame ID, used both for reception
+and transmission, are determined in the "Define" section at the firts lines of codes. They are used to rightfully identify each message,
+allowing for the right reception and content storage (present in the DATA field).
+Every time there is a message available to be read, the digital pin 2 on arduino nano is used to detect it (Low = message available).
+Then, each ECU verifies the message ID to react according with it, such as ignoring it, read specific data, peform action, etc.
+
     
 =========================================================================================================================================
                                                 Individual ECU Description
 =========================================================================================================================================
 A more detailed explaination of each ECU is written in this section.
+
+-------------------------------------------     The Simulation ECU      ------------------------------------------------------------------------------
+
+
+
 
 -------------------------------------------     The ACC ECU      ------------------------------------------------------------------------------
 
@@ -115,7 +126,7 @@ If the conditions are met, the ACC system is enabled. Othewise, it is disabled. 
         In this mode, the system calculates the necessary acceleration to reach cruise speed based on context.
 
 To do so, the ACC system must have access to many information, such as:
-    Current speed, relative speed (ACC x Front car), distance between cars, rain detection, gas and brake pedal pressure detection, etc.
+    Current speed, relative speed (ACC and Front car), distance between cars, rain detection, gas and brake pedal pressure detection, etc.
 
 The safe distance is determined by the following logic:
     There are two calibration variables called D_default and Default_Time_Gap.
@@ -133,3 +144,5 @@ ACC ECU OUTPUTS:
     The ACC current state (enabled, sensors situation, etc) are sent to the ICM ECU for user visualization.
     The ACC calcualted acceleration is sent to the simulation ECU, which will in turn generate a new set of data for the simulation to continue.
     
+
+
