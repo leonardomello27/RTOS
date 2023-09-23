@@ -57,7 +57,7 @@ CPU ECM {
 		};  
 			AUTOSTART = TRUE {
 			ALARMTIME = 4000;
-			CYCLETIME = 4000;
+			CYCLETIME = 100;
 			APPMODE = stdAppMode;
 		};
 	};	
@@ -99,7 +99,7 @@ CPU ECM {
 		};  
 		AUTOSTART = TRUE {
 			ALARMTIME = 4000;
-			CYCLETIME = 40;
+			CYCLETIME = 10;
 			APPMODE = stdAppMode;
 		};
 	};

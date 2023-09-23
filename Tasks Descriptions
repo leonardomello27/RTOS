@@ -1,0 +1,63 @@
+This file describes each tasks, separated by ECU (ACC and ICM).
+The simulation ECU will also be detailed here, but it does not use task, since it does not use RTOS.
+
+Futhermore, each task will be divided as the following example:
+
+Task : Task_name
+    Description
+        ...
+    ALARMTIME
+        ...
+    CYCLETIME
+        ...
+Description field will describe what that task executes.
+ALARMTIME represents when the task is first called by the RTOS.
+CYCLETIME represents the interval between calls of that task after its first execution.
+Both ALARMTIME and CYCLETIME are defined in the .oil file. 
+The task name and its behaviour (such as alarm, type, size, etc) are defined in the respective .oil file.
+See ECUs Descriptions file for more information or the following link:
+  http://www.irisa.fr/alf/downloads/puaut/TPNXT/SummaryOSEK.htm
+
+The ALARMTIME has "high" values to allow us to turn the hardware on and to setup the configuration.
+The CYCLETIME has low values, since it it a time critical application. Normally, these values would depend on the sensors (and other factors) used on the system.
+
+=========================================================================================================================================
+                                                            ACC ECU
+=========================================================================================================================================
+
+TASK: Can_Receive
+    Description
+         Task used to receive information via CAN bus from both ECUs. It checks if there is CAN message on the buffer via the digital pin 2.
+         If true, checks the message ID field of that CAN message frame and compare it with the ID of the messages it is able to receive.
+         Depending of the ID message, the DATA is different and thus, the data storage variable and data decodification is different based on data dictionary.
+         Example: Messages with ID 0x0C1B3049 means its contents are from the simulation ECU and contains the following data in its data field (max of 8 bytes, index [0...7])
+            Ego_speed, on index [1] and [2] of the data field vector.
+            Relative_distance, on index [3] and [4] of the data field vector.
+            Relative_speed, on index [5] and [6] of the data field vector.
+
+
+    ALARMTIME: 1000 ms
+    CYCLETIME: 10 ms
+---------------------------------------------------------------------------------------------
+
+TASK: Logic_block
+    Description
+         Task used to enable or disable the ACC system based on user input and context.
+         If speed is less than 40 km/h, the ACC cannot be enabled. Also, if there is a faulty sensor or any pedal is pressed, it also cannot be enabled (transition off to on).
+         If the acc was enabled and any of the following is true, the ACC is disabled: Faulty_signal, Gas_pedal, Brake_pedal.
+         In either case, a CAN message with ID 0x18FEF100 is sent detailing the ACC status. Usefull for user vizualization of the system.
+
+    ALARMTIME: 4000 ms
+    CYCLETIME: 100 ms
+
+---------------------------------------------------------------------------------------------
+
+TASK: Calculate_ACC_Acceleration
+    Description
+         It is the main task of the ACC ECU. Used to calculate the necessary acceleration to reach a calculated speed or distance, based on context.
+         If the ACC (ego) car is in a "dangerous" distance (Relative_distance < Safe_distance), the acceleration calculated is to control distance.
+         otherwise (Relative_distance >= Safe_distance), controls the speed based on user desired speed (Set_speed) and Front car speed.
+
+    ALARMTIME: 4000 ms
+    CYCLETIME: 10 ms
+---------------------------------------------------------------------------------------------
