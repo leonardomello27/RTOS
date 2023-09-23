@@ -82,7 +82,7 @@ TASK(ACC_speed_set_send)
 		//It checks if the values entered by the user are within the operational limits.
 		if (Set_speed < 40){
             Serial.println("Set Speed velocity must be greater than 40 km//h");
-        } else(Set_speed > 120){
+        }else if(Set_speed > 120){
 			Set_speed = 120; //If the value is greater than 120 km/h, it will be limited to 120 km/h.
 		}
 		//It separates the bytes and allocates them within the CAN message to be sent.

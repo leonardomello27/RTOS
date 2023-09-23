@@ -20,7 +20,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 30
+        "CYCLETIME" : 10
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCalculate_ACC_Acceleration"
@@ -64,7 +64,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 40
+        "CYCLETIME" : 50
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeCan_print"
@@ -86,7 +86,7 @@
             "VALUE" : "stdAppMode"
           }
         ],
-        "CYCLETIME" : 4000
+        "CYCLETIME" : 100
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "alarmeLogic_block"

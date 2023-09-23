@@ -9,7 +9,7 @@ CPU test {
   OS config {
     STATUS = STANDARD;
     BUILD = TRUE {	
-	  TRAMPOLINE_BASE_PATH 	= "../../../../";
+	  TRAMPOLINE_BASE_PATH 	= "../../..";
       APP_NAME 			 	= "image";
       APP_SRC	  			= "ICM_ECU.cpp";
       CPPCOMPILER			= "avr-g++";
@@ -33,8 +33,8 @@ CPU test {
       TASK = ACC_speed_set_send;
     };
     AUTOSTART = TRUE {
-      ALARMTIME = 25; 
-      CYCLETIME = 1000; 
+      ALARMTIME = 100; 
+      CYCLETIME = 300; 
       APPMODE 	= stdAppmode;
     };
   };

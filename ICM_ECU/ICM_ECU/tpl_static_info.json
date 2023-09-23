@@ -12,7 +12,7 @@
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
       {
-        "ALARMTIME" : 25,
+        "ALARMTIME" : 100,
         "APPMODE" : 
         [
           
@@ -20,7 +20,7 @@
             "VALUE" : "stdAppmode"
           }
         ],
-        "CYCLETIME" : 1000
+        "CYCLETIME" : 300
       },
       "COUNTER" : "SystemCounter",
       "NAME" : "periodicAlarm1"
