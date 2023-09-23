@@ -1,8 +1,13 @@
-//////////////////////////////////////////////////
-// Universidade Federal de Pernambuco - UFPE	//	  
-// Residência Tecnológica em Software Automotivo//      			  
-// Final Project -  Team 1                      //
-//////////////////////////////////////////////////
+/*
+Universidade Federal de Pernambuco - UFPE	
+Technological Residency in Automotive Software
+Team 1 : Adaptive Cruise Control 
+Authors: Gabriel Lopes Lomeu Reis Oliveira;  
+		 Leonardo de Melo Abreu 
+		 Lucas de Carvalho Sobral; 
+		 Matheus Henrique de Souza Passos; 
+		 Vitor Fassanaro Cortez de Carvalho. 
+*/
 
 /*
 	This ECU is called the simulation ECU, whose main function is to simulate the enviroment where the system would be operating.

@@ -1,7 +1,13 @@
-//////////////////////////////////////////////////
-// Universidade Federal de Pernambuco - UFPE		  
-// Residência Tecnológica em Software Automotivo      			  
-// PROJETO FINAL 
+/*
+Universidade Federal de Pernambuco - UFPE	
+Technological Residency in Automotive Software
+Team 1 : Adaptive Cruise Control 
+Authors: Gabriel Lopes Lomeu Reis Oliveira;  
+		 Leonardo de Melo Abreu 
+		 Lucas de Carvalho Sobral; 
+		 Matheus Henrique de Souza Passos; 
+		 Vitor Fassanaro Cortez de Carvalho. 
+*/
 
 OIL_VERSION = "2.5" : "test" ;
 
