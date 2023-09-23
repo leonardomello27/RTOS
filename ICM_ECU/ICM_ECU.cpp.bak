@@ -53,11 +53,10 @@ MCP_CAN CAN1(10);
 
 void setup()
 {
-	Set_speed = Set_speed/3.6; //Define a default Set Speed.
 	
 	//It checks if the Set Speed value entered by the user is within the operational limits for the ACC.
-	if (Set_speed < 11) Set_speed = 11;
-	else if (Set_speed > 33) Set_speed = 33;
+	if (Set_speed < 40) Set_speed = 40;
+	else if (Set_speed > 120) Set_speed = 120;
 	
 	//Initialize the serial interface: baudrate = 115200.
 	Serial.begin(115200);
@@ -82,14 +81,16 @@ TASK(ACC_speed_set_send)
 		//It checks if the values entered by the user are within the operational limits.
 		if (Set_speed < 40){
             Serial.println("Set Speed velocity must be greater than 40 km//h");
-        }else(Set_speed > 120){
+			Set_speed =40;
+        }else if(Set_speed > 120){
 			Set_speed = 120; //If the value is greater than 120 km/h, it will be limited to 120 km/h.
 		}
+
+    }
 		//It separates the bytes and allocates them within the CAN message to be sent.
-		sprintf(Set_speed_send , "%04X", (int)((Set_speed/3.6)*256));
+		sprintf(Set_speed_send , "%04X", (int)((Set_speed/3.6)*256)); 
 		ICM_Data[1] = strtol(Set_speed_send , NULL, 16) >> 8;
 		ICM_Data[2] = strtol(Set_speed_send  + 2, NULL, 16);
-    }
 	Serial.read();
 	
 	ICM_Data[3] = (char)ACC_input;

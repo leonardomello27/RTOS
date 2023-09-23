@@ -33,7 +33,7 @@ unsigned char     mDATA[8];     //Used to store DATA received from the CAN bus. 
 unsigned char     mDLC     = 0; //Represents the number of bytes present in the received data field.
 long unsigned int mID      = 0; //Used to store, compare and/or write on ID field (CAN message frame).
 
-static            byte ret = 0; //You can use it to check the status of the CAN message. If M == CAN_OK, the message was transmitted successfully.
+static            byte M = 0; //You can use it to check the status of the CAN message. If M == CAN_OK, the message was transmitted successfully.
 
 //Definition of receive buffer size for CAN MCP 2515 module. It has a limit of reception and transmit buffers.
 //Check datasheet for more details
@@ -42,7 +42,7 @@ static            byte ret = 0; //You can use it to check the status of the CAN 
 volatile int		buffer = BUFF_MAX;
 
 //Variables send by CAN network
-float Ego_speed  			 = 70.0/3.6;  //Initial ego car position  (m/s)
+float Ego_speed  			 = 60.0/3.6;  //Initial ego car position  (m/s)
 float Relative_speed    	 = 0;		
 float Relative_distance_pres = 10;
 
