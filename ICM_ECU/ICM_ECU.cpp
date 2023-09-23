@@ -32,7 +32,7 @@ volatile int		buffer = BUFF_MAX;
 
 //Sent variables
 bool  ACC_input    = 1;
-float Set_speed    = 0;
+float Set_speed    = 80;
 char  Set_speed_send[4];
 
 //Variables received
@@ -51,7 +51,7 @@ MCP_CAN CAN1(10);
 void setup()
 {
 	//Define set speed
-	Set_speed = 80/3.6;
+	Set_speed = Set_speed/3.6;
 	
 	if (Set_speed < 11) Set_speed = 11;
 	else if (Set_speed > 33) Set_speed = 33;

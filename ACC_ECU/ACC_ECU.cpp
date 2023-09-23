@@ -203,7 +203,7 @@ TASK(Calculate_ACC_Acceleration)
 		M1 = CAN1.sendMsgBuf(ACC_acceleration_ID, EXT_FRAME, DLC_ACC, ACC_Acceleration_Data);
 		
 		if (M1 == CAN_OK){
-			Serial.println("ENVIOU ACELERAÇÃO"); 
+			Serial.println("Acceleration sent"); 
 			M1 = 0;
 		}
 	}	
@@ -215,16 +215,16 @@ TASK(print)
 {
 	GetResource(res1);
 	
-	Serial.print("Enviando ---- ACC_enabled: ");
+	Serial.print("ACC_enabled: ");
 	Serial.print(ACC_enabled);
 	Serial.print("; ");
 	
-	Serial.print("Aceleração: ");
+	Serial.print("Acceleration ");
 	Serial.print((((ACC_Acceleration_Data[1] << 8) | ACC_Acceleration_Data[2])-5)*0.01);
 	Serial.println(";");
 	
 	
-	Serial.print("Chegando ICM ---- ACC_input: ");
+	Serial.print("ACC_input: ");
 	Serial.print(ACC_input);
 	Serial.print("; ");
 	
@@ -232,7 +232,7 @@ TASK(print)
 	Serial.print(ACC_speed_set);
 	Serial.println("; ");
 	
-	Serial.print("Chegando Simu_arduino ---- Ego_speed: ");
+	Serial.print("Simu_arduino ---- Ego_speed: ");
 	Serial.print(Ego_speed);
 	Serial.print("; ");
 	
