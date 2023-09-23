@@ -15,7 +15,7 @@ following link, without the sensors and LCD: https://how2electronics.com/interfa
 For 3 MPC2515 CAN module, you only need to connect each one to its own microcontroller and then, connect the modules between themselves
 by connecting the HIGH and LOW pins (CAN_H and CAN_L)  presents on the modules.
 The environment setup can be quite long to be explained here and we do not have permission (yet) to share the guide we used.
-Thus, feel free to change the Trampoline RTOS to any of your linking, but it will require to change the code.
+Thus, feel free to change the Trampoline RTOS to any of your liking, but it will require to change the code.
 
 For this project, the following softwares were used:
 
@@ -99,8 +99,64 @@ This system controls the frequency of read and send actions by time based tasks 
 A more detailed explaination of each ECU is written in this section.
 
 -------------------------------------------     The Simulation ECU      ------------------------------------------------------------------------------
+    Responsible for running a simulation to generate DATA to be feed to the system. Normally, this would be an ECU that receives
+    sensors outputs, but we do not have the means to execute live test or hardware testes and thus, it is necessary to simulate the environment
+    to generate the "would be" sensors DATA. Also, it would not be a good to test to run it on a static environment, since the system behaviour
+    would not be validated correctly.
+    The simulation is done by simulating both the Ego car and lead car's positions and velocity in each iteraction using the DATA obtained in  previous
+    iteraction. By simulating the environment where the system would act, it is possible to generate what would be the sensors measurements 
+    in the real system and thus, provide the system with the relative distance, ego speed and relative speed.
+    Contrary to the others ECUs, the simulation ECU does not use Trampoline RTOS and is just a "normal" arduino code, but the time between iteractions
+    is controlled using the "milis()" function, to better synchronize with the RTOS based ECUs rate. This also avoids the CAN bus overload, since
+    the simulation ECUs uses the bus to read and send updated data each iteraction.
+    To simulate the distance sensor measurements, the simulation has both the ego car and lead car position as values, similar to an one dimensional 
+    vector, whereas the difference between their positions represents the relative distance between them and thus, the "distance sensor" value. 
+    It can also be used as way to determine the relative speed.
 
+    Calibration variables to affect the simulation behavior and STARTING POINT:
+        Some variables starting value can greatly affect the simulation, since it indicates the initial state on the simulation.
+    ---------EGO Variables-------
+    Ego_speed
+        Description: Ego car current speed. (meters per second)
+        Calibration: Starting value defines the initial speed of ego car. Usage example: Setting this higher than the lead car speed.
+                     If calibrated bellow the ACC starting point, ACC may not enabled due to conditions.
 
+    Ego_acceleration (meters per second^2)
+        Description: Ego car current acceleration. It is update through the ACC ECU output on CAN bus.
+        Calibration: Starting value defines the initial speed variation of ego car. Usage example: Setting this higher than the lead car speed.  
+
+    Ego_position    (meters)
+        Description: Ego car current position.
+        Calibration: Determines the starting point of the ego car. Calibrate this together with the Lead_position, since the relative distance  is what matters.
+    
+    --------Lead Variables---------
+    Lead_speed (meters per second)
+        Description: Lead car current speed.
+        Calibration: Starting value defines the initial speed of Lead car. Usage example: Setting this lower than the ego car speed.
+
+    Lead_acceleration (meters per second^2)
+        Description: Lead car current acceleration. Causes variation in the lead car speed. Usefull to observe the ACC ECU reaction to different contexts.
+        Calibration: Starting value defines the acceleration of lead car. Can be changed during simulation through the serial of the simulation ECU.  
+                     Input limited by Lead_acceleration_min and Lead_acceleration_max variables.
+
+    Lead_position (meters)
+        Description: Lead car current position.
+        Calibration: Determines the starting point of the lead car. Calibrate this together with the Ego_position, since the relative distance is what matters.
+
+    Lead_acceleration_min (meters per second^2)
+        Description: Lead car minimum acceleration (brake). Use this to observe the ACC ECU reaction or to change context.
+        Calibration: Determines the minimum acceleration (maximum brake) for the lead car.
+
+    Lead_acceleration_max (meters per second^2)
+        Description: Lead car maximum acceleration. Use this to observe the ACC ECU reaction or to change context.
+        Calibration: Determines the maximum acceleration for the lead car.
+
+    -------Other calibration variables-------
+    interval (seconds)
+        Description: Time between iteractions used on the calculation. 
+        Calibration: Determines the frequency of each iteractions. Too fast (lower = faster) may cause overload on the CAN bus and many usage of not updated values.
+                     since the CAN bus has it's own data reception rate for the acceleration to affect the simulation. Too low and the ACC system may not respond in time.
+                    
 
 
 -------------------------------------------     The ACC ECU      ------------------------------------------------------------------------------
