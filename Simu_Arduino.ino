@@ -14,9 +14,6 @@
 
 
 
-
-
-
 #include <stdbool.h>
 #include "Arduino.h"
 #include "mcp_can.h"
@@ -32,19 +29,19 @@
 #define EXT_FRAME 	1
 
 //Variables received CAN Frame
-unsigned char     mDATA[8];
-unsigned char     mDLC  = 0;
-long unsigned int mID   = 0;
-static            byte ret = 0;
+unsigned char     mDATA[8];     //Used to store DATA received from the CAN bus. Represents the CAN data field.
+unsigned char     mDLC     = 0; //Represents the number of bytes present in the received data field.
+long unsigned int mID      = 0; //Used to store, compare and/or write on ID field (CAN message frame).
 
+static            byte ret = 0; //You can use it to check the status of the CAN message. If M == CAN_OK, the message was transmitted successfully.
 
-//Definition of receive buffer size
+//Definition of receive buffer size for CAN MCP 2515 module. It has a limit of reception and transmit buffers.
+//Check datasheet for more details
 #define BUFF_MAX 	10
 #define BUFF_MIN 	00
 volatile int		buffer = BUFF_MAX;
 
 //Variables send by CAN network
-
 float Ego_speed  			 = 70.0/3.6;  //Initial ego car position  (m/s)
 float Relative_speed    	 = 0;		
 float Relative_distance_pres = 10;
@@ -92,15 +89,15 @@ void setup()
     }
 	//Serial.println("MCP2515 can_send Started!");
 	//Defines operation mode
-	CAN1.setMode(MCP_NORMAL);
-	pinMode(2, INPUT);
+	CAN1.setMode(MCP_NORMAL); //Defines operation mode.
+	pinMode(2, INPUT); //Defines digital pin 2 as input.
 	
 }
 
 void loop()
 {
-	timeCurrent = millis(); //Time mark
-	timeVariation = timeCurrent-timePrevious; //Time variation
+	timeCurrent = millis(); //Time mark.
+	timeVariation = timeCurrent-timePrevious; //Time variation.
   
 	if (timeVariation >= 10){ //Used to control the frequency in which both the CAN bus and the simulation are used. (milliseconds)
 		
@@ -158,26 +155,26 @@ void loop()
 		Serial.print(Ego_speed);
 		Serial.print(",");
 
-    Serial.print("LEAD SPEED:");
+		Serial.print("LEAD SPEED:");
 		Serial.print(Lead_speed);
 		Serial.print(",");
 
 		Serial.print("Rspeed:");
 		Serial.println(Relative_speed);
 		
-		//CAN Message Sender. Check data dictionary to undestand the value changes to the message
+		//It separates the bytes and allocates them within the CAN message to be sent.
 		sprintf(Ego_Speed_send , "%04X", (int)(Ego_speed*256));
 		Send_data[1] = strtol(Ego_Speed_send , NULL, 16) >> 8;
 		Send_data[2] = strtol(Ego_Speed_send  + 2, NULL, 16);
-	
+		//It separates the bytes and allocates them within the CAN message to be sent.
 		sprintf(Relative_distance_pres_send , "%04X", (int)Relative_distance_pres);
 		Send_data[3] = strtol(Relative_distance_pres_send , NULL, 16) >> 8;
 		Send_data[4] = strtol(Relative_distance_pres_send  + 2, NULL, 16);
-		
+		//It separates the bytes and allocates them within the CAN message to be sent.
 		sprintf(Relative_Speed_send , "%04X", (int)(Relative_speed*256));
 		Send_data[5] = strtol(Relative_Speed_send , NULL, 16) >> 8;
 		Send_data[6] = strtol(Relative_Speed_send  + 2, NULL, 16);
-	
-		ret = CAN1.sendMsgBuf(EV_RV_RD_data_ID,EXT_FRAME,DLC,Send_data);
+		//Send the CAN message
+		M = CAN1.sendMsgBuf(EV_RV_RD_data_ID,EXT_FRAME,DLC,Send_data);
 	}	
 }

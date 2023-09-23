@@ -17,16 +17,17 @@
 #define ACC_acceleration_ID		0x0D4001B0 //Data dictionary
 #define ACC_enabled_ID			0x18FEF100 //Data dictionar
 
-//Macros used to send and receive CAN data.
+//Macros used to send CAN data.
 #define DLC_ACC		8
 #define EXT_FRAME 	1
-static 				byte M  = 0; 
-static 				byte M1 = 0;
+
+static 				byte M  = 0; //You can use it to check the status of the CAN message. If M == CAN_OK, the message was transmitted successfully.
+static 				byte M1 = 0; //You can use it to check the status of the CAN message. If M1 == CAN_OK, the message was transmitted successfully.
 
 //Variables received
-long unsigned int 	mID; //Used to store, compare and/or write on ID field (CAN message frame)
-unsigned char 		mDATA[8]; //Used to store DATA to be sent on CAN bus. Represents the CAN data field.
-unsigned char 		mDLC  = 0; //Represents how much bytes of the DATA field are actual transmited data.
+long unsigned int 	mID;       //Used to store, compare and/or write on ID field (CAN message frame)
+unsigned char 		mDATA[8];  //Used to store DATA received from the CAN bus. Represents the CAN data field.
+unsigned char 		mDLC  = 0; //Represents the number of bytes present in the received data field.
 
 //Definition of receive buffer size for CAN MCP 2515 module. It has a limit of reception and transmit buffers.
 //Check datasheet for more details
@@ -76,9 +77,10 @@ void setup() {
 	while (CAN1.begin(MCP_ANY, CAN_500KBPS, MCP_8MHZ) != CAN_OK) {
         delay(200);        
     }
-	//Defines operation mode
-	CAN1.setMode(MCP_NORMAL);
-	pinMode(2, INPUT); //Defines digital pin 2 as input
+	
+	CAN1.setMode(MCP_NORMAL);//Defines operation mode.
+
+	pinMode(2, INPUT); //Defines digital pin 2 as input.
 }
 
 
@@ -90,23 +92,22 @@ TASK(Can_Receive)
 		CAN1.readMsgBuf(&mID, &mDLC, mDATA);
 		
 		if((mID & EV_RV_RD_data_ID) == EV_RV_RD_data_ID) {
+			//Extracting Ego Speed
 			Ego_speed = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
 			Ego_speed = Ego_speed / (256);
-			
+	
+			//Extracting Relative Distance
 			Relative_distance = (mDATA[3] << 8) | mDATA[4]; //Check data dictionary
 			
 			//Extracting Relative Speed
 			Relative_speed = (mDATA[5] << 8) | mDATA[6]; //Check data dictionary
 			Relative_speed = Relative_speed / (256);
-			
-			
+
 			ReleaseResource(res1);
 			TerminateTask();
 		}
 		
 		if((mID & ACC_speed_set_ID) == ACC_speed_set_ID) {
-			
-			Serial.println("CAN ICM message received");
 			
 			//Extracting ACC set speed
 			ACC_speed_set = (mDATA[1] << 8) | mDATA[2]; //Check data dictionary
@@ -147,16 +148,12 @@ TASK(Logic_block)
 	ACC_enabled_Data[4] = (char)Brake_pedal;
 	
 	//Send CAN message to ICM ECU detailing current ACC situation. Used to inform the user.
-	
 	M = CAN1.sendMsgBuf(ACC_enabled_ID, EXT_FRAME, DLC_ACC, ACC_enabled_Data);	
 	ReleaseResource(res1);
-	Serial.println("CAN message sent to ICM ECU");
-	
 	TerminateTask();
-	
 }
 
-
+//This task is responsible for calculating the acceleration and sending it to the CAN network.
 TASK(Calculate_ACC_Acceleration) 
 {
 	float Acceleration  = 0; //Acceleration to be calculated by ACC ECU. Meters per second^2
@@ -183,67 +180,35 @@ TASK(Calculate_ACC_Acceleration)
 		Control_v = (ACC_speed_set - Ego_speed) * Kverr_gain;
 
 		if (SafeD_relD > 0){
-			
 			Acceleration = (Relative_speed * Kvx_gain) - (SafeD_relD * Kxerr_gain);
-			
 		}else{
 			Acceleration = (Control_x < Control_v) ? Control_x : Control_v;
-			
 		}
 		
 		//Limits acceleration values based on defined range
 		Acceleration = (Acceleration < Ego_acceleration_min) ? Ego_acceleration_min : (Acceleration > Ego_acceleration_max) ? Ego_acceleration_max : Acceleration;
 		
+		//It separates the bytes and allocates them within the CAN message to be sent.
 		sprintf(Acceleration_send , "%04X", (int)(((Acceleration)/0.01)+5));
 		ACC_Acceleration_Data[1] = strtol(Acceleration_send , NULL, 16) >> 8;
 		ACC_Acceleration_Data[2] = strtol(Acceleration_send  + 2, NULL, 16);
 	
 		ReleaseResource(res1);
-	
+		//Send the CAN message
 		M1 = CAN1.sendMsgBuf(ACC_acceleration_ID, EXT_FRAME, DLC_ACC, ACC_Acceleration_Data);
-		
-		if (M1 == CAN_OK){
-			Serial.println("Acceleration sent"); 
-			M1 = 0;
-		}
-	}	
+	}
 	TerminateTask();
 }
 
-
+//This task is responsible for displaying the calculated Acceleration value sent by the ACC_ECU.
 TASK(print)
 {
 	GetResource(res1);
 	
-	Serial.print("ACC_enabled: ");
-	Serial.print(ACC_enabled);
-	Serial.print("; ");
-	
-	Serial.print("Acceleration ");
+	Serial.print("Acceleration: ");
 	Serial.print((((ACC_Acceleration_Data[1] << 8) | ACC_Acceleration_Data[2])-5)*0.01);
 	Serial.println(";");
-	
-	
-	Serial.print("ACC_input: ");
-	Serial.print(ACC_input);
-	Serial.print("; ");
-	
-	Serial.print("Set_speed: ");
-	Serial.print(ACC_speed_set);
-	Serial.println("; ");
-	
-	Serial.print("Simu_arduino ---- Ego_speed: ");
-	Serial.print(Ego_speed);
-	Serial.print("; ");
-	
-	Serial.print("Relative_distance: ");
-	Serial.print(Relative_distance);
-	Serial.print("; ");
-	
-	Serial.print("Relative_speed: ");
-	Serial.print(Relative_speed);
-	Serial.println("; ");
-	
+
 	ReleaseResource(res1);
 	TerminateTask();
 }
