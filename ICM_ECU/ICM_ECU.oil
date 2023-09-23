@@ -33,8 +33,8 @@ CPU test {
       TASK = ACC_speed_set_send;
     };
     AUTOSTART = TRUE {
-      ALARMTIME = 25; 
-      CYCLETIME = 1000; 
+      ALARMTIME = 100; 
+      CYCLETIME = 300; 
       APPMODE 	= stdAppmode;
     };
   };
