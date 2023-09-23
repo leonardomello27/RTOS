@@ -49,7 +49,7 @@ bool  ACC_input         = 0; //Represents the ACC input by the user. Represents 
 float Ego_speed         = 0; //Represents ACC(ego) current speed. Sent by Simulation ECU.
 float Relative_distance = 0; //Represents the relative distance between cars. Represents the distance sensor value. Sent by Simulation ECU.
 float Relative_speed    = 0; //Represents the relative speed between cars. Sent by Simulation ECU.
-float ACC_speed_set     = 0; //Represents the desired speed (user input, setpoint) for the acc to reach, if the context allows it. Sent by ICM ECU.
+float ACC_speed_set     = 80; //Represents the desired speed (user input, setpoint) for the acc to reach, if the context allows it. Sent by ICM ECU.
 
 //Variables Logic Block
 bool ACC_enabled  = 0; //Represents if the ACC was enabled or disabled.
