@@ -102,3 +102,21 @@ TASK: print
     CYCLETIME: 25 ms
 
 ---------------------------------------------------------------------------------------------
+
+=========================================================================================================================================
+                                                            Simulation ECU
+=========================================================================================================================================
+
+Responsible for running a simulation to generate DATA to be feed to the system. Normally, this would be an ECU that receives
+    sensors outputs, but we do not have the means to execute live test or hardware testes and thus, it is necessary to simulate the environment
+    to generate the "would be" sensors DATA. Also, it would not be a good to test to run it on a static environment, since the system behaviour
+    would not be validated correctly.
+    The simulation is done by simulating both the Ego car and lead car's positions and velocity in each iteraction using the DATA obtained in  previous
+    iteraction. By simulating the environment where the system would act, it is possible to generate what would be the sensors measurements 
+    in the real system and thus, provide the system with the relative distance, ego speed and relative speed.
+    Contrary to the others ECUs, the simulation ECU does not use Trampoline RTOS and is just a "normal" arduino code, but the time between iteractions
+    is controlled using the "milis()" function, to better synchronize with the RTOS based ECUs rate. This also avoids the CAN bus overload, since
+    the simulation ECUs uses the bus to read and send updated data each iteraction.
+    To simulate the distance sensor measurements, the simulation has both the ego car and lead car position as values, similar to an one dimensional 
+    vector, whereas the difference between their positions represents the relative distance between them and thus, the "distance sensor" value. 
+    It can also be used as way to determine the relative speed.
