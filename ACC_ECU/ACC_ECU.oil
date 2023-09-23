@@ -10,7 +10,7 @@ CPU ECM {
   OS config {
     STATUS = STANDARD;
     BUILD = TRUE {	
-	  TRAMPOLINE_BASE_PATH 	= "../../..";
+	  TRAMPOLINE_BASE_PATH 	= "../../../../";
       APP_NAME 			 	= "image";
       APP_SRC	  			= "ACC_ECU.cpp";
       CPPCOMPILER			= "avr-g++";
@@ -35,7 +35,7 @@ CPU ECM {
 		};  
 		AUTOSTART = TRUE {
 			ALARMTIME = 1000;
-			CYCLETIME = 20;
+			CYCLETIME = 10;
 			APPMODE = stdAppMode;
 		};
 	};
@@ -56,8 +56,8 @@ CPU ECM {
 		TASK = Logic_block;
 		};  
 			AUTOSTART = TRUE {
-			ALARMTIME = 2100;
-			CYCLETIME = 50;
+			ALARMTIME = 4000;
+			CYCLETIME = 100;
 			APPMODE = stdAppMode;
 		};
 	};	
@@ -99,7 +99,7 @@ CPU ECM {
 		};  
 		AUTOSTART = TRUE {
 			ALARMTIME = 4000;
-			CYCLETIME = 20;
+			CYCLETIME = 50;
 			APPMODE = stdAppMode;
 		};
 	};

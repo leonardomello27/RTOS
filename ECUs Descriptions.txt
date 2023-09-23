@@ -1,0 +1,247 @@
+This file will be used to descibre how the system works, both as a group and individually.
+
+Sections in Order
+1-What is used on this project?
+2-System Description
+3-Individual ECU description
+
+=========================================================================================================================================
+                                                What is used on this project?
+=========================================================================================================================================
+IMPORTANT: If you wish to only reproduce the code in your own embedded system with atmega328p (old bootloader), you can use the "image"
+files presents in each ECU folder. Just upload it to each microcontroller using OLD BOOTLOADER. For the circuit, you only need to connect
+the system with microcontroller (arduino nanos, in this case) and MPC2515 CAN connected in a breadboad. A good example is present in the
+following link, without the sensors and LCD: https://how2electronics.com/interfacing-mcp2515-can-bus-module-with-arduino/
+For 3 MPC2515 CAN module, you only need to connect each one to its own microcontroller and then, connect the modules between themselves
+by connecting the HIGH and LOW pins (CAN_H and CAN_L)  presents on the modules.
+The environment setup can be quite long to be explained here and we do not have permission (yet) to share the guide we used.
+Thus, feel free to change the Trampoline RTOS to any of your liking, but it will require to change the code.
+
+For this project, the following softwares were used:
+
+    1- Notepad++ version 8.2.1, 32 Bits version. Install all componentes except localization. Do not update when asked.
+        A- This is used as a IDE with some macros to automatize the process of compiling and uploading.
+    2- Arduino-cli v0.20.1, 64 bits version.
+    3- Python 2.7.14 (USE THIS VERSION for the Trampoline RTOS).
+    4- MCP2515_CAN library from coryjfowler: https://github.com/coryjfowler/MCP_CAN_lib , Used to program the MCP2515 CAN module.
+    5- Trampoline RTOS, used to implement RTOS: https://github.com/TrampolineRTOS/trampoline
+    6- AVR 8-bit Toolchain v3.62 – Windows.
+
+
+For this project, the following hardware were used:
+
+    1- 3 Arduinos nano, with the OLD bootloader (IMPORTANT)
+    2- 3 MCP2515 CAN module, used to enable CAN communication between the microcontrollers.
+    3- Jumpers for circuity prototype connections. (Male to female, and male to male jumpers).
+    4- USB cables that fits the arduino nano port AND can transport DATA. Charging cables only will not work.
+        A- The USB cable that usually works are USB 2.0 A to 2.0 mini B.
+        B- In this project, the USB cable is to Upload the compiled code to the microcontrollers.
+        C- They are also used to power the Arduino via a computed serial port. For more complex project, it may require it's own power source.
+    5- A computer to be connected to the Arduinos. In this project, it is used to both power and upload compiled code.
+        A- It is also used to receive serial data representing the user input, allowing us to interact with the system during its execution.
+
+=========================================================================================================================================
+                                                System Description
+=========================================================================================================================================
+A more simplified description of the system is descibred in this section.
+
+The system is composed of 3 ECUs and one CAN bus to allow communication between them. Each ECU has its own functions, which will be describred bellow:
+
+    Simulation ECU: 
+        Responsible for running a simulation to generate DATA to be feed to the system. Normally, this would be an ECU that receives
+        sensors outputs, but we do not have the means to execute live test or hardware testes and thus, it is necessary to simulate the environment
+        to generate the "would be" sensors DATA. Also, it would not be a good to test to run it on a static environment, since the system behaviour
+        would not be validated correctly.
+        The simulation ECU simulates both the ACC car (Ego) and front car (lead) position and speed to generate the "sensors" DATA of current speed,distance 
+        and relative speed, necessary for the calculations on the ACC ECU. The ACC ECU provides, after its calculations, the necessary acceleration 
+        for the ego car to reach the desired safe distance or speed and thus, affects the simulation by providing the ego speed variation for the
+        next iteraction.
+    
+    ACC ECU:
+        Responsible for output the calculate acceleration to reach the desired speed or safe distance, based on the system current context.
+        It is also Responsible for enabling and disabling the ACC ECU based on context and user input.
+        The necessary DATA to perform the acceleration calculation are provided by the Simulation ECU via CAN bus, whilist the ICM ECU 
+        provides the user input to enable (or disable) the ACC and the user desired speed target for it. It is important to note that while the user may
+        provide the input to enable the ACC, it is the ACC ECU that verifies the current context to judge if the ACC can be enabled.
+        The ACC ECU also provides the ACC current state (enabled, disabled, etc) to the ICM ECU via CAN bus.
+
+    ICM ECU:
+        Responsible for providing the user with information regarding the system (such as current speed, ACC status, etc) and capture user input
+        to be sent to the ACC ECU. The user input consists of the ACC enable signal and the desired speed target (set speed).
+        This ECU also provides the serial prints necessary for us to analyse the system during its execution in both a graphical manner and
+        text manner. This is done to avoid overload of the others ECUs, since Serial prints can take quite a bit of memory and time.
+
+Each one of the ECUs codes has a .oil file (Example: ACC_ECU.cpp and ACC_ECU.oil) that describres the Real Time Operational System (RTOS) behaviour,
+which is programmed by the user (programmer) to fit its system's criteria.
+In a simplified manner, we can descibre the main points to control the RTOS behaviour in the following fields:
+
+    1- Task: It is basically a time based function call that will be called whenever the RTOS scalonator allows it to access the CPU. The scalonator
+        behaviour is controlled by the user (programmer), such as the scalonation type (full preemptive, non preemptive, etc), alarm time and cycle time.
+        Also, each task has it's own priority value (lower = more priority) in case of conflict between task on the scalonation, depnending of the
+        scalonation chosen pattern.
+    2- Alarms:  Each alarm has a group of Tasks that are controlled by this alarm, controlling when it's first execution happens (alarmtime fiedl) and periodic
+    re-execution rate (cycletime field). The programmer provides a integer number representing the value time.
+        This time is based on the microcontroller timer, and we can aproximate the value 1000 to 1000 ms, but in reality is close the 1000 to 1024 ms.
+        In arduino, this value is the systick, where in 16 MHz arduino a tick happens each 1024 us. Thus, 1000 ticks represents 1024 ms.
+    For more information: http://www.irisa.fr/alf/downloads/puaut/TPNXT/SummaryOSEK.htm
+
+The communication between ECUs happens via CAN bus using the MPC2515 CAN module, whereas each message CAN frame ID, used both for reception
+and transmission, are determined in the "Define" section at the firts lines of codes. They are used to rightfully identify each message,
+allowing for the right reception and content storage (present in the DATA field).
+Every time there is a message available to be read, the digital pin 2 on arduino nano is used to detect it (Low = message available).
+Then, each ECU verifies the message ID to react according with it, such as ignoring it, read specific data, peform action, etc.
+Be careful to not spam the CAN bus, since it can make lower priority messages be delayed too much.
+This system controls the frequency of read and send actions by time based tasks using the Trampoline RTOS.
+    
+=========================================================================================================================================
+                                                Individual ECU Description
+=========================================================================================================================================
+A more detailed explaination of each ECU is written in this section.
+
+-------------------------------------------     The Simulation ECU      ------------------------------------------------------------------------------
+    Responsible for running a simulation to generate DATA to be feed to the system. Normally, this would be an ECU that receives
+    sensors outputs, but we do not have the means to execute live test or hardware testes and thus, it is necessary to simulate the environment
+    to generate the "would be" sensors DATA. Also, it would not be a good to test to run it on a static environment, since the system behaviour
+    would not be validated correctly.
+    The simulation is done by simulating both the Ego car and lead car's positions and velocity in each iteraction using the DATA obtained in  previous
+    iteraction. By simulating the environment where the system would act, it is possible to generate what would be the sensors measurements 
+    in the real system and thus, provide the system with the relative distance, ego speed and relative speed.
+    Contrary to the others ECUs, the simulation ECU does not use Trampoline RTOS and is just a "normal" arduino code, but the time between iteractions
+    is controlled using the "milis()" function, to better synchronize with the RTOS based ECUs rate. This also avoids the CAN bus overload, since
+    the simulation ECUs uses the bus to read and send updated data each iteraction.
+    To simulate the distance sensor measurements, the simulation has both the ego car and lead car position as values, similar to an one dimensional 
+    vector, whereas the difference between their positions represents the relative distance between them and thus, the "distance sensor" value. 
+    It can also be used as way to determine the relative speed.
+
+    Calibration variables to affect the simulation behavior and STARTING POINT:
+        Some variables starting value can greatly affect the simulation, since it indicates the initial state on the simulation.
+    ---------EGO Variables-------
+    Ego_speed  (meters per second)
+        Description: Ego car current speed.
+        Calibration: Starting value defines the initial speed of ego car. Usage example: Setting this higher than the lead car speed.
+                     If calibrated bellow the ACC starting point, ACC may not enabled due to conditions.
+
+    Ego_acceleration (meters per second^2)
+        Description: Ego car current acceleration. It is update through the ACC ECU output on CAN bus.
+        Calibration: Starting value defines the initial speed variation of ego car. Usage example: Setting this higher than the lead car speed.  
+
+    Ego_position    (meters)
+        Description: Ego car current position.
+        Calibration: Determines the starting point of the ego car. Calibrate this together with the Lead_position, since the relative distance  is what matters.
+    
+    --------Lead Variables---------
+    Lead_speed (meters per second)
+        Description: Lead car current speed.
+        Calibration: Starting value defines the initial speed of Lead car. Usage example: Setting this lower than the ego car speed.
+
+    Lead_acceleration (meters per second^2)
+        Description: Lead car current acceleration. Causes variation in the lead car speed. Usefull to observe the ACC ECU reaction to different contexts.
+        Calibration: Starting value defines the acceleration of lead car. Can be changed during simulation through the serial of the simulation ECU.  
+                     Input limited by Lead_acceleration_min and Lead_acceleration_max variables.
+
+    Lead_position (meters)
+        Description: Lead car current position.
+        Calibration: Determines the starting point of the lead car. Calibrate this together with the Ego_position, since the relative distance is what matters.
+
+    Lead_acceleration_min (meters per second^2)
+        Description: Lead car minimum acceleration (brake). Use this to observe the ACC ECU reaction or to change context.
+        Calibration: Determines the minimum acceleration (maximum brake) for the lead car.
+
+    Lead_acceleration_max (meters per second^2)
+        Description: Lead car maximum acceleration. Use this to observe the ACC ECU reaction or to change context.
+        Calibration: Determines the maximum acceleration for the lead car.
+
+    -------Other calibration variables-------
+    interval (seconds)
+        Description: Time between iteractions used on the calculation. 
+        Calibration: Determines the frequency of each iteractions. Too fast (lower = faster) may cause overload on the CAN bus and many usage of not updated values.
+                     since the CAN bus has it's own data reception rate for the acceleration to affect the simulation. Too low and the ACC system may not respond in time.
+                    
+
+
+-------------------------------------------     The ACC ECU      ------------------------------------------------------------------------------
+
+The Adaptive Cruise Control (ACC) is a system used to control the vehicle speed based on user chosen value
+and current context, meaning the system will control the car speed in a way to:
+    First priority: Ensure safety by controlling the speed and distance between itself and the front car.
+    Second priority: Control speed to reach either the user desired speed or the front car speed, whichever is lowest.
+Both of these objectives are necessary to avoid colision and thus, material or life damage.
+The ACC ECU calculates the necessary acceleration (or slowdown) to reach a certain speed or distance, whilist
+taking in consideration the system's current context, such as rain detection, faulty sensors detection, safe distances, etc.
+
+
+The ACC set speed value and ACC enable command are provided by the user (through the ICM ECU), but the ACC ECU will verify
+if the current context is allowed to activate the ACC system, taking in consideration a few things, such as:
+Minimum and maximum current speed, the embedded system integrity (fault signal), pressure on the pedals (any pressure disables the ACC),etc.
+If the conditions are met, the ACC system is enabled. Othewise, it is disabled. Both cases are informed to the user through ICM ECU.
+
+    The system has 2 main modes that decides its behaviour:
+    1-Distance control mode, used when the system deems the distance between cars are too close to ensure safety.
+        In this mode, the system calculates the necessary acceleration to reach the safe distance.
+    2-Speed control mode, used when the safe distance is reached and thus, the ACC system must reach the lowest between  
+    the user or the front car speed.
+        In this mode, the system calculates the necessary acceleration to reach cruise speed based on context.
+
+To do so, the ACC system must have access to many information, such as:
+    Current speed, relative speed (ACC and Front car), distance between cars, rain detection, gas and brake pedal pressure detection, etc.
+
+The safe distance is determined by the following logic:
+    There are two calibration variables called D_default and Default_Time_Gap.
+    D_default (meters): Minimum distance between ACC car (EGO car) and front car (Lead car), regardless of current speed or time gap.
+    Default_Time_Gap (seconds): Time gap between ego and lead car based on ego current speed. 
+        The Time_gap variable is calculated as following: 
+            Time_gap=Default_Time_Gap, if not raining. If raining, Time_gap = Default_Time_Gap * 2.
+                Reasoning: Water can make the car take longer to reduce speed. 
+Thus, the safe distance is calculated as such: Safe_distance = D_default + (Time_gap*Ego_speed); Whereas Ego_speed is in meters per second.
+
+After calculating the acceleration based on current context, the acceleration must be limited to the minimum and maximum values.
+    Reasoning: accelerations must be confortable to user. Slowdown is the minimum value and represents brakes capacity "unrestricted" for safety.
+
+ACC ECU OUTPUTS:
+    The ACC current state (enabled, sensors situation, etc) are sent to the ICM ECU for user visualization.
+    The ACC calcualted acceleration is sent to the simulation ECU, which will in turn generate a new set of data for the simulation to continue.
+
+---------Calibration Variables----------------
+    D_default (meters)
+        Description: Default distance for the safe distance calculation. This value is regardless of the time gap value.
+        Calibration: Set it taking in consideration the time gap value you used for the calibration. Safe distance = D_default + Ego_speed*Time_Gap
+
+    Time_gap_base (seconds)
+        Description: Default time gap between the cars. It takes in consideration the ego car current speed to calculate safe distance.
+        Calibration: Set it taking in consideration the time gap you deem safe to maintain. Safe distance = D_default + Ego_speed*Time_Gap.
+                     The time gap variable that is used on the calculation is based on this Time_gap_base variable. 
+                     If the system detects it is raining, the value changes by a fixed amount.
+
+    Ego_acceleration_min (meters per second^2)
+        Description: Ego car minimum acceleration (brake). Maximum brake capacity of the system.
+        Calibration: Determines the minimum acceleration (maximum brake) for the ego car.
+
+    Ego_acceleration_max (meters per second^2)
+        Description: Ego car maximum acceleration. Maximum acceleration for confortable ACC usage for the user.
+        Calibration: Determines the maximum acceleration for the ego car.
+
+    Context variables (Others variables, true or false)
+    Description: These variables are used to affect the ACC enable or disable decisions. Rain signal affects the safe distance calculation.
+                 ACC input is received from the ICM ECU.
+    Variables:  ACC_input, Brake_pedal,Gas_pedal,Fault_signal.
+    Calibration: Start values defines the ACC system behaviour and calculations. 
+                 Recommended: Everything to false, excepet Rain (use any starting value as you like).
+                              Reason: will permit the ACC to be enabled when the ICM ECU sends the ACC input = true message.
+                              Currently there is no way to change them (Except acc input) during runtime. They represent sensors values.
+                              But since the system does not have them yet, they are only starting values.
+
+-------------------------------------------     ICM ECU     ------------------------------------------------------------------------------
+
+Responsible for providing the user with information regarding the system (such as current speed, ACC status, etc) and capture user input
+to be sent to the ACC ECU. The user input consists of the ACC enable signal and the desired speed target (set speed).
+This ECU also provides the serial prints necessary for us to analyse the system during its execution in both a graphical manner and
+text manner. This is done to avoid overload of the others ECUs, since Serial prints can take quite a bit of memory and time.
+
+---------Calibration Variables----------------
+    ACC_input (true or false)
+        Description: User input to enable or disable ACC. Sent to the ACC_ECU via CAN bus.
+        Calibration: Set it to false to wait for user input (via serial). Set to true to start the system already sending the enable signal.
+
+    Set_speed (Kilometers per hour, for user friendly values)
+        Description: Defines the user desired speed for cruise (setpoint) for the ACC system. Limited to 40<->120 km/h.
+        Calibration: Starting value Recommended for initial iteractions, but the value can be changed via serial.
