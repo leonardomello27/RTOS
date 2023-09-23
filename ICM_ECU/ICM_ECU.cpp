@@ -1,8 +1,8 @@
-//////////////////////////////////////////////////
-// Universidade Federal de Pernambuco - UFPE	//	  
-// Residência Tecnológica em Software Automotivo//      			  
-// Final Project -  Team 1                      //
-//////////////////////////////////////////////////
+///////////////////////////////////////////////////
+// Universidade Federal de Pernambuco - UFPE	 //	  
+// Technological Residency in Automotive Software//      			  
+// Final Project -  Team 1                       //
+///////////////////////////////////////////////////
 
 #include "tpl_os.h"
 #include "Arduino.h"
