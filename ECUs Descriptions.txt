@@ -116,8 +116,8 @@ A more detailed explaination of each ECU is written in this section.
     Calibration variables to affect the simulation behavior and STARTING POINT:
         Some variables starting value can greatly affect the simulation, since it indicates the initial state on the simulation.
     ---------EGO Variables-------
-    Ego_speed
-        Description: Ego car current speed. (meters per second)
+    Ego_speed  (meters per second)
+        Description: Ego car current speed.
         Calibration: Starting value defines the initial speed of ego car. Usage example: Setting this higher than the lead car speed.
                      If calibrated bellow the ACC starting point, ACC may not enabled due to conditions.
 
@@ -200,6 +200,48 @@ After calculating the acceleration based on current context, the acceleration mu
 ACC ECU OUTPUTS:
     The ACC current state (enabled, sensors situation, etc) are sent to the ICM ECU for user visualization.
     The ACC calcualted acceleration is sent to the simulation ECU, which will in turn generate a new set of data for the simulation to continue.
-    
 
+---------Calibration Variables----------------
+    D_default (meters)
+        Description: Default distance for the safe distance calculation. This value is regardless of the time gap value.
+        Calibration: Set it taking in consideration the time gap value you used for the calibration. Safe distance = D_default + Ego_speed*Time_Gap
 
+    Time_gap_base (seconds)
+        Description: Default time gap between the cars. It takes in consideration the ego car current speed to calculate safe distance.
+        Calibration: Set it taking in consideration the time gap you deem safe to maintain. Safe distance = D_default + Ego_speed*Time_Gap.
+                     The time gap variable that is used on the calculation is based on this Time_gap_base variable. 
+                     If the system detects it is raining, the value changes by a fixed amount.
+
+    Ego_acceleration_min (meters per second^2)
+        Description: Ego car minimum acceleration (brake). Maximum brake capacity of the system.
+        Calibration: Determines the minimum acceleration (maximum brake) for the ego car.
+
+    Ego_acceleration_max (meters per second^2)
+        Description: Ego car maximum acceleration. Maximum acceleration for confortable ACC usage for the user.
+        Calibration: Determines the maximum acceleration for the ego car.
+
+    Context variables (Others variables, true or false)
+    Description: These variables are used to affect the ACC enable or disable decisions. Rain signal affects the safe distance calculation.
+                 ACC input is received from the ICM ECU.
+    Variables:  ACC_input, Brake_pedal,Gas_pedal,Fault_signal.
+    Calibration: Start values defines the ACC system behaviour and calculations. 
+                 Recommended: Everything to false, excepet Rain (use any starting value as you like).
+                              Reason: will permit the ACC to be enabled when the ICM ECU sends the ACC input = true message.
+                              Currently there is no way to change them (Except acc input) during runtime. They represent sensors values.
+                              But since the system does not have them yet, they are only starting values.
+
+-------------------------------------------     ICM ECU     ------------------------------------------------------------------------------
+
+Responsible for providing the user with information regarding the system (such as current speed, ACC status, etc) and capture user input
+to be sent to the ACC ECU. The user input consists of the ACC enable signal and the desired speed target (set speed).
+This ECU also provides the serial prints necessary for us to analyse the system during its execution in both a graphical manner and
+text manner. This is done to avoid overload of the others ECUs, since Serial prints can take quite a bit of memory and time.
+
+---------Calibration Variables----------------
+    ACC_input (true or false)
+        Description: User input to enable or disable ACC. Sent to the ACC_ECU via CAN bus.
+        Calibration: Set it to false to wait for user input (via serial). Set to true to start the system already sending the enable signal.
+
+    Set_speed (Kilometers per hour, for user friendly values)
+        Description: Defines the user desired speed for cruise (setpoint) for the ACC system. Limited to 40<->120 km/h.
+        Calibration: Starting value Recommended for initial iteractions, but the value can be changed via serial.
