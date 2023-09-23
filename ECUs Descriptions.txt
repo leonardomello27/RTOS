@@ -90,7 +90,8 @@ and transmission, are determined in the "Define" section at the firts lines of c
 allowing for the right reception and content storage (present in the DATA field).
 Every time there is a message available to be read, the digital pin 2 on arduino nano is used to detect it (Low = message available).
 Then, each ECU verifies the message ID to react according with it, such as ignoring it, read specific data, peform action, etc.
-
+Be careful to not spam the CAN bus, since it can make lower priority messages be delayed too much.
+This system controls the frequency of read and send actions by time based tasks using the Trampoline RTOS.
     
 =========================================================================================================================================
                                                 Individual ECU Description
