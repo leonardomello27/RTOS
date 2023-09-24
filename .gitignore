@@ -1,4 +1,6 @@
 **/*.BAK
+**/*.py
 ICM_ECU/ICM_ECU/
 ACC_ECU/ACC_ECU/
-
+ACC_ECU/build/
+ICM_ECU/build/
