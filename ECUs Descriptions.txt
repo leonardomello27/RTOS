@@ -1,5 +1,8 @@
 This file will be used to descibre how the system works, both as a group and individually.
 
+Embedded system repository (This): https://github.com/leonardomello27/RTOS
+C/C++ code with tests, non embedded system repository: https://github.com/Mhsp990/ACC_Final_Project_Code
+
 Sections in Order
 1-What is used on this project?
 2-System Description
@@ -16,6 +19,11 @@ For 3 MPC2515 CAN module, you only need to connect each one to its own microcont
 by connecting the HIGH and LOW pins (CAN_H and CAN_L)  presents on the modules.
 The environment setup can be quite long to be explained here and we do not have permission (yet) to share the guide we used.
 Thus, feel free to change the Trampoline RTOS to any of your liking, but it will require to change the code.
+
+IMPORTANT:
+    We have a alternative version of this system that does not use embedded system or RTOS. It just executes a C/C++ code containing this system's
+    behaviour. It also includes a production code and a test code. 
+    Link: https://github.com/Mhsp990/ACC_Final_Project_Code
 
 For this project, the following softwares were used:
 
