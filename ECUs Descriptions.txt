@@ -40,6 +40,10 @@ For this project, the following hardware were used:
     5- A computer to be connected to the Arduinos. In this project, it is used to both power and upload compiled code.
         A- It is also used to receive serial data representing the user input, allowing us to interact with the system during its execution.
 
+To run this system, build the circuit with the mcp2515 can and arduino nano (3 of each, one arduino nano connected to one mcp2515 CAN).
+Compile the project using the necessary tools and upload the generated image file (the compiled result) to each one of the arduino nano.
+Important: This project was made using arduino nano old, which uses the old bootloader.
+
 =========================================================================================================================================
                                                 System Description
 =========================================================================================================================================
